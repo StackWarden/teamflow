@@ -1,20 +1,24 @@
 package org.teamflow.database;
+import io.github.cdimascio.dotenv.Dotenv;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class DatabaseConnection {
     public static void main(String[] args) {
-        String url = "jdbc:mysql://localhost:3306/teamflow";
-        String user = "root";
-        String password = "";
+        Dotenv dotenv = Dotenv.load();
+
+        String url = dotenv.get("DB_URL");
+        String user = dotenv.get("DB_USER");
+        String password = dotenv.get("DB_PASSWORD");
 
         try {
             Connection connection = DriverManager.getConnection(url, user, password);
-            System.out.println("Connected successfully!");
+            System.out.println("Connected to DB successfully!");
             connection.close();
-        } catch (SQLException e) {
-            System.out.println("Connection failed:");
+        } catch (Exception e) {
+            System.out.println("Database connection failed:");
             e.printStackTrace();
         }
     }
