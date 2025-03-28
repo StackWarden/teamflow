@@ -7,7 +7,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: ${DOCKER_ROOT_PASSWORD}
       MYSQL_DATABASE: ${DOCKER_DATABASE}
-      MYSQL_USER: ${DOCKER_USER}
+      MYSQL_USER: ${DB_USER}
       MYSQL_PASSWORD: ${DB_PASSWORD}
     ports:
       - "3306:3306"
