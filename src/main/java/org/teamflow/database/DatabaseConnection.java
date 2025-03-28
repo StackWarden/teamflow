@@ -1,5 +1,4 @@
 package org.teamflow.database;
-
 import io.github.cdimascio.dotenv.Dotenv;
 
 import java.sql.Connection;
@@ -30,9 +29,7 @@ public class DatabaseConnection {
             System.out.println("Connected to DB successfully!");
             connection.close();
         } catch (Exception e) {
-            System.out.println("Database connection failed:");
-            e.printStackTrace();
+            System.out.println("Database connection failed:" + e.getMessage());
         }
     }
 }
-

@@ -27,4 +27,8 @@ target
 hs_err_pid*
 replay_pid*
 
+# Environment variables
 .env
+
+# Docker database files
+db/*
