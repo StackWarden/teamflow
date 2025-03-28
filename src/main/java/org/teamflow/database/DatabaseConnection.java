@@ -3,7 +3,6 @@ import io.github.cdimascio.dotenv.Dotenv;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.SQLException;
 
 public class DatabaseConnection {
     public static void main(String[] args) {
@@ -18,8 +17,7 @@ public class DatabaseConnection {
             System.out.println("Connected to DB successfully!");
             connection.close();
         } catch (Exception e) {
-            System.out.println("Database connection failed:");
-            e.printStackTrace();
+            System.out.println("Database connection failed:" + e.getMessage());
         }
     }
 }
