@@ -4,10 +4,10 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        System.out.println(getLoginOrRegister());
+        System.out.println(LoginOrRegister());
     }
 
-    public static int getLoginOrRegister() {
+    public static int LoginOrRegister() {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Do you want to login or register an account?");
         System.out.println("1. Login");
@@ -21,7 +21,7 @@ public class Main {
                 yield input;
             }
             default -> {
-                getLoginOrRegister();
+                LoginOrRegister();
                 yield input;
             }
         };
