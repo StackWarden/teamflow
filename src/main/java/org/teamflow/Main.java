@@ -1,10 +1,14 @@
 package org.teamflow;
 
+import org.teamflow.controllers.UserController;
+
 import java.util.Scanner;
 
 public class Main {
+    public static UserController userController = new UserController();
+
     public static void main(String[] args) {
-        System.out.println(getLoginOrRegister());
+        register();
     }
 
     public static int getLoginOrRegister() {
@@ -25,5 +29,17 @@ public class Main {
                 yield input;
             }
         };
+    }
+
+    public static void register() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("What is your name?");
+        String name = scanner.nextLine();
+
+        try {
+            userController.registerUser(name);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

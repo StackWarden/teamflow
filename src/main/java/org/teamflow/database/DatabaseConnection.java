@@ -3,6 +3,7 @@ import io.github.cdimascio.dotenv.Dotenv;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.sql.Statement;
 
 public class DatabaseConnection {
@@ -29,6 +30,21 @@ public class DatabaseConnection {
             connection.close();
         } catch (Exception e) {
             System.out.println("Database connection failed:" + e.getMessage());
+        }
+    }
+
+    public static void query(String query) throws SQLException {
+        Dotenv dotenv = Dotenv.load();
+
+        String url = dotenv.get("DB_URL");
+        String dbName = dotenv.get("DB_NAME");
+        String user = dotenv.get("DB_USER");
+        String password = dotenv.get("DB_PASSWORD");
+
+        Connection connection = DriverManager.getConnection(url + dbName, user, password);
+
+        if (!query.isEmpty()) {
+            connection.createStatement().executeUpdate(query);
         }
     }
 }
