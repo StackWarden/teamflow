@@ -41,6 +41,15 @@ public class Main {
         };
     }
 
+    public static void login() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("What is your name?");
+        String name = scanner.nextLine();
+
+        UserController userController = new UserController();
+        userController.loginUser(name);
+    }
+
     public static void register() {
         Scanner scanner = new Scanner(System.in);
         System.out.println("What is your name?");
@@ -58,9 +67,5 @@ public class Main {
                 break;
             default:
         }
-    }
-
-    public static void login() {
-
     }
 }

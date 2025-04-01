@@ -2,7 +2,10 @@ package org.teamflow.controllers;
 
 import org.teamflow.FileUtil;
 import org.teamflow.database.DatabaseConnection;
+
+import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class UserController {
@@ -22,6 +25,23 @@ public class UserController {
             System.out.println("User table ensured.");
         } catch (SQLException e) {
             throw new RuntimeException("Failed to create user table", e);
+        }
+    }
+
+    public void loginUser(String username) {
+        String sql = "SELECT * FROM user WHERE username = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql);) {
+            ps.setString(1, username);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                setLoggedIn(true);
+                System.out.println(username + " logged in.");
+            } else {
+                System.out.println(username + " not found.");
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
