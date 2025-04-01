@@ -14,7 +14,6 @@ public class UserController {
         isLoggedIn = loggedIn;
     }
 
-
     public UserController() {
         String sql = FileUtil.readSQLFile("src/main/java/org/teamflow/database/tables/user.sql");
 
