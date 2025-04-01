@@ -1,9 +1,7 @@
 package org.teamflow;
 
 import org.teamflow.controllers.UserController;
-
 import java.util.Scanner;
-
 
 public class Main {
     public static UserController userController = new UserController();
