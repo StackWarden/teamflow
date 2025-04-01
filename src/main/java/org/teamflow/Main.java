@@ -1,13 +1,27 @@
 package org.teamflow;
 
+import org.teamflow.controllers.UserController;
 import java.util.Scanner;
 
 public class Main {
+    public static UserController userController = new UserController();
+
     public static void main(String[] args) {
-        System.out.println(LoginOrRegister());
+        switch (getLoginOrRegister()) {
+            case 1:
+                login();
+                break;
+            case 2:
+                register();
+                break;
+        }
+
+        if (userController.isLoggedIn()) {
+
+        }
     }
 
-    public static int LoginOrRegister() {
+    public static int getLoginOrRegister() {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Do you want to login or register an account?");
         System.out.println("1. Login");
@@ -21,9 +35,34 @@ public class Main {
                 yield input;
             }
             default -> {
-                LoginOrRegister();
+                getLoginOrRegister();
                 yield input;
             }
         };
+    }
+
+    public static int register() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("What is your name?");
+        String name = scanner.nextLine();
+
+        int registerStatus = userController.registerUser(name);
+
+        switch (registerStatus) {
+            case 1:
+                System.out.println("You have successfully registered!");
+                return registerStatus;
+            case 2:
+                System.out.println("This user already exists!");
+                register();
+                break;
+            default:
+                return registerStatus;
+        }
+        return registerStatus;
+    }
+
+    public static int login() {
+        return 0;
     }
 }
