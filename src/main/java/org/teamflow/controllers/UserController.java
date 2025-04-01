@@ -1,6 +1,8 @@
 package org.teamflow.controllers;
+import org.teamflow.FileUtil;
 import org.teamflow.database.DatabaseConnection;
 
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 
@@ -15,24 +17,31 @@ public class UserController {
 
 
     public UserController() {
-        String userTableQuery = """
-            CREATE TABLE IF NOT EXISTS user (
-                id INT PRIMARY KEY AUTO_INCREMENT,
-                username VARCHAR(100) NOT NULL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        """;
+        String sql = FileUtil.readSQLFile("src/main/java/org/teamflow/database/tables/user.sql");
 
         try {
-            DatabaseConnection.query(userTableQuery);
+            DatabaseConnection.query(sql);
             System.out.println("User table ensured.");
         } catch (SQLException e) {
             throw new RuntimeException("Failed to create user table", e);
         }
     }
 
-    public boolean registerUser(String username) throws Exception{
+    public int registerUser(String username) {
+        String sql = "INSERT INTO user (username) VALUES (?)";
 
-        return false;
+        try (PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
+            stmt.setString(1, username);
+            stmt.executeUpdate();
+            isLoggedIn = true;
+            return 1;
+        } catch (SQLException e) {
+            if (e.getErrorCode() == 1062) {
+                return 2;
+            } else {
+                System.out.println("Failed to register user: " + e.getMessage());
+            }
+            return 0;
+        }
     }
 }

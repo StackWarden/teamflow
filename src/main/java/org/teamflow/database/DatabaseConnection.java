@@ -7,8 +7,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class DatabaseConnection {
+    private static Connection connection;
 
-    public static void main(String[] args) {
+    static {
         Dotenv dotenv = Dotenv.load();
 
         String url = dotenv.get("DB_URL");
@@ -17,22 +18,22 @@ public class DatabaseConnection {
         String password = dotenv.get("DB_PASSWORD");
 
         try {
-            Connection initialConnection = DriverManager.getConnection(url, user, password);
-            Statement stmt = initialConnection.createStatement();
-
+            Connection init = DriverManager.getConnection(url, user, password);
+            Statement stmt = init.createStatement();
             stmt.executeUpdate("CREATE DATABASE IF NOT EXISTS " + dbName);
             stmt.close();
-            initialConnection.close();
-            System.out.println("Database ensured.");
+            init.close();
 
-            Connection connection = DriverManager.getConnection(url + dbName, user, password);
+            connection = DriverManager.getConnection(url + dbName, user, password);
             System.out.println("Connected to DB successfully!");
-            connection.close();
         } catch (Exception e) {
             System.out.println("Database connection failed:" + e.getMessage());
         }
     }
 
+    public static Connection getConnection() {
+        return connection;
+    }
     public static void query(String query) throws SQLException {
         Dotenv dotenv = Dotenv.load();
 
