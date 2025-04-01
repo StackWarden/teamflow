@@ -41,7 +41,7 @@ public class Main {
         };
     }
 
-    public static int register() {
+    public static void register() {
         Scanner scanner = new Scanner(System.in);
         System.out.println("What is your name?");
         String name = scanner.nextLine();
@@ -51,18 +51,16 @@ public class Main {
         switch (registerStatus) {
             case 1:
                 System.out.println("You have successfully registered!");
-                return registerStatus;
+                return;
             case 2:
                 System.out.println("This user already exists!");
                 register();
                 break;
             default:
-                return registerStatus;
         }
-        return registerStatus;
     }
 
-    public static int login() {
-        return 0;
+    public static void login() {
+
     }
 }
