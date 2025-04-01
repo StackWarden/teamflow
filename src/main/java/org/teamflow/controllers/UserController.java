@@ -10,9 +10,11 @@ import java.sql.SQLException;
 
 public class UserController {
     private boolean isLoggedIn = false;
+
     public boolean isLoggedIn() {
         return isLoggedIn;
     }
+
     public void setLoggedIn(boolean loggedIn) {
         isLoggedIn = loggedIn;
     }
@@ -28,17 +30,22 @@ public class UserController {
         }
     }
 
-    public void loginUser(String username) {
+    public int loginUser(String username) {
         String sql = "SELECT * FROM user WHERE username = ?";
 
-        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql);) {
+        try (
+            Connection conn = DatabaseConnection.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql)
+        ) {
             ps.setString(1, username);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 setLoggedIn(true);
                 System.out.println(username + " logged in.");
+                return 1;
             } else {
                 System.out.println(username + " not found.");
+                return 2;
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);

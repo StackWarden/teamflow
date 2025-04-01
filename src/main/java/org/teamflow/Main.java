@@ -5,67 +5,65 @@ import java.util.Scanner;
 
 public class Main {
     public static UserController userController = new UserController();
+    private static final Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
-        switch (getLoginOrRegister()) {
-            case 1:
+        while (!userController.isLoggedIn()) {
+            int choice = getLoginOrRegister();
+            if (choice == 1) {
                 login();
-                break;
-            case 2:
+            } else {
                 register();
-                break;
+            }
         }
-
-        if (userController.isLoggedIn()) {
-
-        }
+        System.out.println("Welcome! You are now logged in.");
     }
 
     public static int getLoginOrRegister() {
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("Do you want to login or register an account?");
-        System.out.println("1. Login");
-        System.out.println("2. Sign up");
+        while (true) {
+            System.out.println("Do you want to login or sign up?");
+            System.out.println("1. Login");
+            System.out.println("2. Sign up");
 
-        int input = scanner.nextInt();
+            try {
+                int input = Integer.parseInt(scanner.nextLine());
 
-        return switch (input) {
-            case 1, 2 -> {
-                System.out.println("You chose: " + input);
-                yield input;
+                if (input == 1 || input == 2) {
+                    System.out.println("You chose: " + input);
+                    return input;
+                } else {
+                    System.out.println("Input 1 or 2");
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Input 1 or 2");
             }
-            default -> {
-                getLoginOrRegister();
-                yield input;
-            }
-        };
+        }
     }
 
     public static void login() {
-        Scanner scanner = new Scanner(System.in);
         System.out.println("What is your name?");
         String name = scanner.nextLine();
 
-        UserController userController = new UserController();
-        userController.loginUser(name);
+        int status = userController.loginUser(name);
+        switch (status) {
+            case 1 -> System.out.println("You are logged in.");
+            case 2 -> System.out.println("You are already logged in.");
+            case 0 -> System.out.println("Login failed. Try again.");
+        }
     }
 
     public static void register() {
-        Scanner scanner = new Scanner(System.in);
         System.out.println("What is your name?");
         String name = scanner.nextLine();
 
         int registerStatus = userController.registerUser(name);
 
         switch (registerStatus) {
-            case 1:
-                System.out.println("You have successfully registered!");
-                return;
-            case 2:
-                System.out.println("This user already exists!");
+            case 1 -> System.out.println("You have successfully registered!");
+            case 2 -> {
+                System.out.println("This user already exists, try another one!");
                 register();
-                break;
-            default:
+            }
         }
     }
 }

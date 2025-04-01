@@ -8,15 +8,13 @@ import java.sql.Statement;
 
 public class DatabaseConnection {
     private static Connection connection;
+    private static final Dotenv dotenv = Dotenv.load();
+    private static final String url = dotenv.get("DB_URL");
+    private static final String dbName = dotenv.get("DB_NAME");
+    private static final String user = dotenv.get("DB_USER");
+    private static final String password = dotenv.get("DB_PASSWORD");
 
     static {
-        Dotenv dotenv = Dotenv.load();
-
-        String url = dotenv.get("DB_URL");
-        String dbName = dotenv.get("DB_NAME");
-        String user = dotenv.get("DB_USER");
-        String password = dotenv.get("DB_PASSWORD");
-
         try {
             Connection init = DriverManager.getConnection(url, user, password);
             Statement stmt = init.createStatement();
@@ -32,16 +30,16 @@ public class DatabaseConnection {
     }
 
     public static Connection getConnection() {
+        try {
+            if (connection == null || connection.isClosed()) {
+                connection = DriverManager.getConnection(url + dbName, user, password);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to get DB connection", e);
+        }
         return connection;
     }
     public static void query(String query) throws SQLException {
-        Dotenv dotenv = Dotenv.load();
-
-        String url = dotenv.get("DB_URL");
-        String dbName = dotenv.get("DB_NAME");
-        String user = dotenv.get("DB_USER");
-        String password = dotenv.get("DB_PASSWORD");
-
         Connection connection = DriverManager.getConnection(url + dbName, user, password);
 
         if (!query.isEmpty()) {
