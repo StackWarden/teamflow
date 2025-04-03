@@ -31,6 +31,13 @@ public class UserControllerTest {
     }
 
     @Test
+    public void testLogin_Returns1() {
+        int result = controller.registerUser("testuser");
+        assertEquals(1, result, "Should return 1 for successful login");
+        assertTrue(controller.isLoggedIn(), "user should be logged in");
+    }
+
+    @Test
     public void testRegisterNewUser_Returns1() {
         int result = controller.registerUser("testuser");
         assertEquals(1, result, "Should return 1 for successful registration");
