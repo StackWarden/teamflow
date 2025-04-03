@@ -2,6 +2,7 @@ package org.teamflow.controllers;
 
 import org.teamflow.FileUtil;
 import org.teamflow.database.DatabaseConnection;
+import org.teamflow.models.User;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -9,6 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class UserController {
+    private User loggedUser = null;
     private boolean isLoggedIn = false;
 
     public boolean isLoggedIn() {
@@ -17,6 +19,10 @@ public class UserController {
 
     public void setLoggedIn(boolean loggedIn) {
         isLoggedIn = loggedIn;
+    }
+
+    public User getLoggedUser() {
+        return loggedUser;
     }
 
     public int loginUser(String username) {
@@ -28,32 +34,52 @@ public class UserController {
         ) {
             ps.setString(1, username);
             ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                setLoggedIn(true);
-                return 1;
-            } else {
-                return 2;
-            }
+            User user = createUserObject(rs);
+            return (user != null) ? 1 : 2;
+
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
     public int registerUser(String username) {
-        String sql = "INSERT INTO user (username) VALUES (?)";
+        String insertSQL = "INSERT INTO user (username) VALUES (?)";
+        String selectSQL = "SELECT * FROM user WHERE username = ?";
 
-        try (PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
-            stmt.setString(1, username);
-            stmt.executeUpdate();
-            isLoggedIn = true;
+        try (
+                Connection conn = DatabaseConnection.getConnection();
+                PreparedStatement insertStmt = conn.prepareStatement(insertSQL);
+        ) {
+            insertStmt.setString(1, username);
+            insertStmt.executeUpdate();
+
+            try (PreparedStatement selectStmt = conn.prepareStatement(selectSQL)) {
+                selectStmt.setString(1, username);
+                ResultSet rs = selectStmt.executeQuery();
+                createUserObject(rs);
+            }
             return 1;
         } catch (SQLException e) {
             if (e.getErrorCode() == 1062) {
                 return 2;
             } else {
                 System.out.println("Failed to register user: " + e.getMessage());
+                return 0;
             }
-            return 0;
         }
+    }
+
+    private User createUserObject(ResultSet rs) throws SQLException {
+        if (!rs.next()) {
+            return null;
+        }
+
+        User user = new User();
+        user.setId(rs.getInt("id"));
+        user.setUsername(rs.getString("username"));
+        loggedUser = user;
+        setLoggedIn(true);
+
+        return user;
     }
 }
