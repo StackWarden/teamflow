@@ -9,7 +9,7 @@ import java.sql.SQLException;
 
 public class UserProjectRoleService {
 
-    public boolean isScrumMaster(int userId, int projectId) {
+    public static boolean isScrumMaster(int userId, int projectId) {
         String sql = """
             SELECT r.role_name 
             FROM user_project up
@@ -34,7 +34,7 @@ public class UserProjectRoleService {
         return false;
     }
 
-    public void assignRoleToUser(int userId, int projectId, String roleName) {
+    public static void assignRoleToUser(int userId, int projectId, String roleName) {
         String findRole = "SELECT id FROM role WHERE role_name = ?";
         String insertLink = "INSERT INTO user_project (user_id, project_id, role_id) VALUES (?, ?, ?)";
 
