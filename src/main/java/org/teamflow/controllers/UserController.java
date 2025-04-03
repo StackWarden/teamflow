@@ -41,10 +41,8 @@ public class UserController {
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 setLoggedIn(true);
-                System.out.println(username + " logged in.");
                 return 1;
             } else {
-                System.out.println(username + " not found.");
                 return 2;
             }
         } catch (SQLException e) {

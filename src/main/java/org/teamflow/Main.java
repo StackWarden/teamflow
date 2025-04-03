@@ -47,8 +47,7 @@ public class Main {
         int status = userController.loginUser(name);
         switch (status) {
             case 1 -> System.out.println("You are logged in.");
-            case 2 -> System.out.println("You are already logged in.");
-            case 0 -> System.out.println("Login failed. Try again.");
+            case 2 -> System.out.println("User not found.");
         }
     }
 
