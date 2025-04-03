@@ -45,9 +45,8 @@ public class Main {
         String name = scanner.nextLine();
 
         int status = userController.loginUser(name);
-        switch (status) {
-            case 1 -> System.out.println("You are logged in.");
-            case 2 -> System.out.println("User not found.");
+        if (status == 2) {
+            System.out.println("User not found.");
         }
     }
 
