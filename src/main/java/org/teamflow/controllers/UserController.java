@@ -3,7 +3,6 @@ package org.teamflow.controllers;
 import org.teamflow.FileUtil;
 import org.teamflow.database.DatabaseConnection;
 import org.teamflow.models.User;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
