@@ -1,17 +1,17 @@
 CREATE TABLE IF NOT EXISTS  `User` (
                         `id` INT AUTO_INCREMENT PRIMARY KEY,
-                        `username` VARCHAR(255) NOT NULL
+                        `username` VARCHAR(255) NOT NULL UNIQUE
 );
 
 CREATE TABLE IF NOT EXISTS  `Project` (
                            `id` INT AUTO_INCREMENT PRIMARY KEY,
-                           `name` VARCHAR(255) NOT NULL,
+                           `name` VARCHAR(255) NOT NULL UNIQUE,
                            `description` TEXT
 );
 
 CREATE TABLE IF NOT EXISTS  `Role` (
                         `id` INT AUTO_INCREMENT PRIMARY KEY,
-                        `role_name` VARCHAR(50) NOT NULL
+                        `role_name` VARCHAR(50) NOT NULL UNIQUE
 );
 
 CREATE TABLE IF NOT EXISTS  `User_Project` (
