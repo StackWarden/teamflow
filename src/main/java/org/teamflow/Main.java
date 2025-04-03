@@ -1,5 +1,6 @@
 package org.teamflow;
 
+import org.teamflow.controllers.ProjectController;
 import org.teamflow.controllers.UserController;
 import org.teamflow.database.DatabaseConnection;
 
@@ -7,6 +8,7 @@ import java.util.Scanner;
 
 public class Main {
     public static UserController userController = new UserController();
+    public static ProjectController projectController = new ProjectController();
     private static final Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
@@ -21,6 +23,7 @@ public class Main {
             }
         }
         System.out.println("Welcome! You are now logged in.");
+        createProject();
     }
 
     public static int getLoginOrRegister() {
@@ -66,6 +69,21 @@ public class Main {
                 System.out.println("This user already exists, try another one!");
                 register();
             }
+        }
+    }
+
+    public static void createProject() {
+        System.out.println("What is your project name?");
+        String name = scanner.nextLine();
+        System.out.println("What is your description?");
+        String description = scanner.nextLine();
+
+        int status = projectController.createProject(name, description);
+
+        if (status == 1) {
+            System.out.println("Project successfully created!");
+        } else {
+            System.out.println("Project already exists, try another one!");
         }
     }
 }
