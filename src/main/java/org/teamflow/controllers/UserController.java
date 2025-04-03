@@ -19,17 +19,6 @@ public class UserController {
         isLoggedIn = loggedIn;
     }
 
-    public UserController() {
-        String sql = FileUtil.readSQLFile("src/main/java/org/teamflow/database/tables/user.sql");
-
-        try {
-            DatabaseConnection.query(sql);
-            System.out.println("User table ensured.");
-        } catch (SQLException e) {
-            throw new RuntimeException("Failed to create user table", e);
-        }
-    }
-
     public int loginUser(String username) {
         String sql = "SELECT * FROM user WHERE username = ?";
 

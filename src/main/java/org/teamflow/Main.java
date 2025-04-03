@@ -1,6 +1,8 @@
 package org.teamflow;
 
 import org.teamflow.controllers.UserController;
+import org.teamflow.database.DatabaseConnection;
+
 import java.util.Scanner;
 
 public class Main {
@@ -8,6 +10,8 @@ public class Main {
     private static final Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
+        DatabaseConnection.checkConnection();
+
         while (!userController.isLoggedIn()) {
             int choice = getLoginOrRegister();
             if (choice == 1) {
