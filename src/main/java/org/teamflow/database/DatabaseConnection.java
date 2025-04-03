@@ -1,6 +1,8 @@
 package org.teamflow.database;
 
 import io.github.cdimascio.dotenv.Dotenv;
+import org.teamflow.FileUtil;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -24,8 +26,21 @@ public class DatabaseConnection {
 
             connection = DriverManager.getConnection(url + dbName, user, password);
             System.out.println("Connected to DB successfully!");
+
+            String schemaSQL = FileUtil.readSQLFile("src/main/java/org/teamflow/database/tables/database_query.sql");
+            Statement schemaStmt = connection.createStatement();
+            schemaStmt.executeUpdate(schemaSQL);
+            schemaStmt.close();
+            System.out.println("Database schema executed.");
+
+            String seedSQL = FileUtil.readSQLFile("src/main/java/org/teamflow/database/tables/seeder.sql");
+            Statement seedStmt = connection.createStatement();
+            seedStmt.executeUpdate(seedSQL);
+            seedStmt.close();
+            System.out.println("Seed data inserted.");
+
         } catch (Exception e) {
-            System.out.println("Database connection failed:" + e.getMessage());
+            System.out.println("Database setup failed: " + e.getMessage());
         }
     }
 
