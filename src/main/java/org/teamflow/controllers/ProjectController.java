@@ -85,5 +85,46 @@ public class ProjectController {
             System.out.println("Failed to remove user from project: " + e.getMessage());
         }
     }
+    public void listProjects() {
+        String sql = "SELECT name FROM project";
+        try (
+                PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql);
+                ResultSet rs = stmt.executeQuery()
+        ) {
+            int index = 1;
+            while (rs.next()) {
+                String name = rs.getString("name");
+                System.out.println(index + ": " + name);
+                index++;
+            }
+
+            if (index > index) {
+                System.out.println("No projects found.");
+            }
+        } catch (SQLException e) {
+            System.out.println("Failed to list projects: " + e.getMessage());
+        }
+    }
+
+    public void joinProject() {
+        System.out.println("Which project to join?");
+        listProjects();
+        String choice = scanner.nextLine();
+        switch (choice) {
+            case "1" -> {
+                String sql = "SELECT name FROM user JOIN user_project ON user_project.id = user.id JOIN project ON project.id = project.id";
+                try (
+                        PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql);
+                        ResultSet rs = stmt.executeQuery()
+                ) {
+
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+
+
+            }
+        }
+    }
 
 }
