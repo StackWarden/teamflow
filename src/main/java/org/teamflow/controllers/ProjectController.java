@@ -35,7 +35,7 @@ public class ProjectController {
         }
     }
 
-    public boolean removeUserFromProjectByName() {
+    public void removeUserFromProjectByName() {
         String getUserIdSql = "SELECT id FROM user WHERE username = ?";
         String getProjectIdSql = "SELECT id FROM project WHERE name = ?";
         String deleteLinkSql = "DELETE FROM User_Project WHERE user_id = ? AND project_id = ?";
@@ -56,7 +56,7 @@ public class ProjectController {
             ResultSet userRs = userStmt.executeQuery();
             if (!userRs.next()) {
                 System.out.println("User not found: " + username);
-                return false;
+                return;
             }
             int userId = userRs.getInt("id");
 
@@ -65,7 +65,7 @@ public class ProjectController {
             ResultSet projectRs = projectStmt.executeQuery();
             if (!projectRs.next()) {
                 System.out.println("Project not found: " + projectName);
-                return false;
+                return;
             }
             int projectId = projectRs.getInt("id");
 
@@ -76,15 +76,12 @@ public class ProjectController {
 
             if (affectedRows > 0) {
                 System.out.println("User removed from project.");
-                return true;
             } else {
                 System.out.println("User was not assigned to the project.");
-                return false;
             }
 
         } catch (SQLException e) {
             System.out.println("Failed to remove user from project: " + e.getMessage());
-            return false;
         }
     }
 
