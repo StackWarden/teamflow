@@ -87,4 +87,27 @@ public class UserProjectRoleService {
             return null;
         }
     }
+
+    public static boolean isMemberOfProject(int userId, int projectId) {
+        String sql = """
+        SELECT *
+        FROM user_project up
+        WHERE up.user_id = ? AND up.project_id = ?
+    """;
+
+        try (
+                Connection conn = DatabaseConnection.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)
+        ) {
+            stmt.setInt(1, userId);
+            stmt.setInt(2, projectId);
+
+            ResultSet rs = stmt.executeQuery();
+            return rs.next();
+
+        } catch (SQLException e) {
+            System.out.println("Error retrieving user role: " + e.getMessage());
+            return false;
+        }
+    }
 }

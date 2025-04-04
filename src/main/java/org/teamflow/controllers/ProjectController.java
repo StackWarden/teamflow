@@ -9,6 +9,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class ProjectController {
@@ -106,6 +107,23 @@ public class ProjectController {
         } catch (SQLException e) {
             System.out.println("Failed to remove user from project: " + e.getMessage());
             return false;
+        }
+    }
+
+    public ArrayList<Project> listProjects() {
+        String sql = "SELECT id, name, description FROM project";
+        ArrayList<Project> projects = new ArrayList<Project>();
+        try (
+                PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql);
+                ResultSet rs = stmt.executeQuery()
+        ) {
+            while (rs.next()) {
+                projects.add(new Project(rs.getInt("id"), rs.getString("name"), rs.getString("description")));
+            }
+            return projects;
+        } catch (SQLException e) {
+            System.out.println("Failed to list projects: " + e.getMessage());
+            return projects;
         }
     }
 }
