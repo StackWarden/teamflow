@@ -40,7 +40,7 @@ public class DashboardScreen implements Screen {
 
             switch (choice) {
                 case "0" -> {
-                    userController.removeUserFromProject();
+                    userController.deleteUser();
                     screenManager.switchTo(ScreenType.LOGIN);
                     return;
                 }
@@ -57,7 +57,7 @@ public class DashboardScreen implements Screen {
                     System.exit(0);
                 }
                 case "9" -> {
-                    projectController.removeUserFromProjectByName();
+                    removeUserFromProjectUI();
                 }
                 default -> System.out.println("Invalid option.");
             }
@@ -84,4 +84,21 @@ public class DashboardScreen implements Screen {
             System.out.println("Error creating project.");
         }
     }
+
+    private void removeUserFromProjectUI() {
+        System.out.print("Enter username to remove from project: ");
+        String username = scanner.nextLine();
+
+        System.out.print("Enter project name: ");
+        String projectName = scanner.nextLine();
+
+        boolean success = projectController.removeUserFromProjectByName(username, projectName);
+
+        if (success) {
+            System.out.println("User removed from project.");
+        } else {
+            System.out.println("Could not remove user from project.");
+        }
+    }
+
 }
