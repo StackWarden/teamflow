@@ -8,6 +8,7 @@ import java.sql.SQLException;
 
 public class UserController {
     private boolean isLoggedIn = false;
+    private String currentUser;
 
     public boolean isLoggedIn() {
         return isLoggedIn;
@@ -32,6 +33,7 @@ public class UserController {
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 setLoggedIn(true);
+                currentUser = username;
                 return 1;
             } else {
                 return 2;
@@ -47,7 +49,8 @@ public class UserController {
         try (PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
             stmt.setString(1, username);
             stmt.executeUpdate();
-            isLoggedIn = true;
+            setLoggedIn(true);
+            currentUser = username;
             return 1;
         } catch (SQLException e) {
             if (e.getErrorCode() == 1062) {
@@ -56,6 +59,23 @@ public class UserController {
                 System.out.println("Failed to register user: " + e.getMessage());
             }
             return 0;
+        }
+    }
+
+    public void removeUserFromProject() {
+        String sql = "DELETE FROM user WHERE username = ?";
+
+        if (!isLoggedIn || currentUser == null) {
+            return;
+        }
+
+        try (PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
+            stmt.setString(1, currentUser);
+            stmt.executeUpdate();
+            setLoggedIn(false);
+            currentUser = null;
+        } catch (SQLException e) {
+            System.out.println("Failed to delete user: " + e.getMessage());
         }
     }
 }
