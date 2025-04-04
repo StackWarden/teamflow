@@ -2,14 +2,12 @@ package org.teamflow.screens;
 
 import org.teamflow.ScreenManager;
 import org.teamflow.controllers.ProjectController;
-import org.teamflow.database.DatabaseConnection;
 import org.teamflow.enums.ScreenType;
 import org.teamflow.interfaces.Screen;
 import org.teamflow.controllers.UserController;
 import org.teamflow.models.Project;
 import org.teamflow.models.ProjectCreationResult;
 import org.teamflow.services.UserProjectRoleService;
-
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -62,7 +60,7 @@ public class DashboardScreen implements Screen {
                 case "9" -> {
                     removeUserFromProjectUI();
                 }
-                default -> System.out.println("Invalid option.");
+                default -> System.out.println();
             }
         }
     }
@@ -108,11 +106,19 @@ public class DashboardScreen implements Screen {
         System.out.println("Which project to join?");
         ArrayList<Project> projects = projectController.listProjects();
         for (Project project : projects) {
-            System.out.println(project.getId() + project.getName());
+            if (!UserProjectRoleService.isMemberOfProject(userController.getUserId(), project.getId())) {
+                System.out.println(project.getId() + ". " + project.getName());
+            }
         }
 
         int choice = scanner.nextInt();
 
+        boolean exists = projects.stream().anyMatch(p -> p.getId() == choice);
 
+        if (exists) {
+            UserProjectRoleService.assignRoleToUser(userController.getUserId(), choice, "Developer");
+        } else {
+            System.out.println("Project does not exist.");
+        }
     }
 }
