@@ -1,13 +1,11 @@
 package org.teamflow.controllers;
 
 import org.teamflow.database.DatabaseConnection;
-import org.teamflow.enums.ScreenType;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Scanner;
 
 public class UserController {
     private boolean isLoggedIn = false;
