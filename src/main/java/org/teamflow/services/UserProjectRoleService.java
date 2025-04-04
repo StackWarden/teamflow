@@ -1,7 +1,6 @@
 package org.teamflow.services;
 
 import org.teamflow.database.DatabaseConnection;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

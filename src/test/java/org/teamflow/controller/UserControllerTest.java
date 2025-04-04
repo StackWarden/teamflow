@@ -1,12 +1,10 @@
 package org.teamflow.controller;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.teamflow.controllers.UserController;
 import org.teamflow.database.DatabaseConnection;
 import org.teamflow.models.User;
-
 import java.sql.Connection;
 import java.sql.Statement;
 
@@ -65,7 +63,7 @@ public class UserControllerTest {
     public void testLoginWithRegisteredUser_Returns1() {
         controller.registerUser("testuser");
 
-        UserController fresh = new UserController(); // simulate a new instance like in real usage
+        UserController fresh = new UserController();
         int result = fresh.loginUser("testuser");
 
         assertEquals(1, result, "Should return 1 for successful login");
