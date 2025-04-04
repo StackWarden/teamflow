@@ -10,6 +10,8 @@ import java.sql.Statement;
 import java.util.Scanner;
 
 public class ProjectController {
+    Scanner scanner = new Scanner(System.in);
+
     public ProjectCreationResult createProject(String name, String description) {
         String sql = "INSERT INTO Project (name, description) VALUES (?, ?)";
 
@@ -45,7 +47,6 @@ public class ProjectController {
                 PreparedStatement projectStmt = DatabaseConnection.getConnection().prepareStatement(getProjectIdSql);
                 PreparedStatement deleteStmt = DatabaseConnection.getConnection().prepareStatement(deleteLinkSql)
         ) {
-            Scanner scanner = new Scanner(System.in);
             System.out.println("Enter username: ");
             String username = scanner.nextLine();
             System.out.println("Enter project name: ");
