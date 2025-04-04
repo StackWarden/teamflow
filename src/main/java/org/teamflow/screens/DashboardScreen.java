@@ -12,6 +12,7 @@ import org.teamflow.models.ProjectCreationResult;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class DashboardScreen implements Screen {
@@ -49,7 +50,7 @@ public class DashboardScreen implements Screen {
                     return;
                 }
                 case "1" -> createProject();
-                case "2" -> projectController.joinProject();
+                case "2" -> joinProject();
                 case "3" -> System.out.println("TODO: list projects");
                 case "4" -> {
                     userController.logout(); // You should add this method
@@ -84,5 +85,17 @@ public class DashboardScreen implements Screen {
         } else {
             System.out.println("Error creating project.");
         }
+    }
+
+    public void joinProject() {
+        System.out.println("Which project to join?");
+        ArrayList<Project> projects = projectController.listProjects();
+        for (Project project : projects) {
+            System.out.println(project.getId() + project.getName());
+        }
+
+        int choice = scanner.nextInt();
+
+
     }
 }

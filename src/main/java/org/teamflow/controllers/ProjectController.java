@@ -7,6 +7,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class ProjectController {
@@ -85,46 +86,21 @@ public class ProjectController {
             System.out.println("Failed to remove user from project: " + e.getMessage());
         }
     }
-    public void listProjects() {
-        String sql = "SELECT name FROM project";
+
+    public ArrayList<Project> listProjects() {
+        String sql = "SELECT id, name, description FROM project";
+        ArrayList<Project> projects = new ArrayList<Project>();
         try (
                 PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql);
                 ResultSet rs = stmt.executeQuery()
         ) {
-            int index = 1;
             while (rs.next()) {
-                String name = rs.getString("name");
-                System.out.println(index + ": " + name);
-                index++;
+                projects.add(new Project(rs.getInt("id"), rs.getString("name"), rs.getString("description")));
             }
-
-            if (index > index) {
-                System.out.println("No projects found.");
-            }
+            return projects;
         } catch (SQLException e) {
             System.out.println("Failed to list projects: " + e.getMessage());
+            return projects;
         }
     }
-
-    public void joinProject() {
-        System.out.println("Which project to join?");
-        listProjects();
-        String choice = scanner.nextLine();
-        switch (choice) {
-            case "1" -> {
-                String sql = "SELECT name FROM user JOIN user_project ON user_project.id = user.id JOIN project ON project.id = project.id";
-                try (
-                        PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql);
-                        ResultSet rs = stmt.executeQuery()
-                ) {
-
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
-                }
-
-
-            }
-        }
-    }
-
 }
