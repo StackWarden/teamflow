@@ -3,6 +3,8 @@ package org.teamflow.controllers;
 import org.teamflow.database.DatabaseConnection;
 import org.teamflow.models.Project;
 import org.teamflow.models.ProjectCreationResult;
+import org.teamflow.models.User;
+import org.teamflow.services.UserProjectRoleService;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -24,6 +26,7 @@ public class ProjectController {
             if (keys.next()) {
                 int projectId = keys.getInt(1);
                 Project project = new Project(projectId, name, description);
+                currentProject = project;
                 return new ProjectCreationResult(1, project);
             } else {
                 return new ProjectCreationResult(0, null);
@@ -36,5 +39,18 @@ public class ProjectController {
                 return new ProjectCreationResult(0, null);
             }
         }
+    }
+
+    public Project getCurrentProject() {
+        return currentProject;
+    }
+
+    public String getCurrentProjectName() {
+        return currentProject.getName();
+    }
+
+    public String getProjectNameAndUserRole(User user) {
+        String userRole = UserProjectRoleService.getUserRoleForProject(user.getId(), getCurrentProjectId());
+        return "Project: " + getCurrentProjectName() + " (" + userRole + ")";
     }
 }
