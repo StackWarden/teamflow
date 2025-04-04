@@ -32,7 +32,8 @@ public class DashboardScreen implements Screen {
             System.out.println("3. View joined projects");
             System.out.println("4. Logout");
             System.out.println("5. Exit");
-            System.out.println("0. Remove yourself from project");
+            System.out.println("9. Remove a user from a project");
+            System.out.println("0. Delete account");
 
             String choice = scanner.nextLine();
 
@@ -53,6 +54,9 @@ public class DashboardScreen implements Screen {
                 case "5" -> {
                     System.out.println("Goodbye!");
                     System.exit(0);
+                }
+                case "9" -> {
+                    projectController.removeUserFromProjectByName();
                 }
                 default -> System.out.println("Invalid option.");
             }
