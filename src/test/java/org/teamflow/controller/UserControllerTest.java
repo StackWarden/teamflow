@@ -7,7 +7,6 @@ import org.teamflow.database.DatabaseConnection;
 import org.teamflow.models.User;
 import java.sql.Connection;
 import java.sql.Statement;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 public class UserControllerTest {
