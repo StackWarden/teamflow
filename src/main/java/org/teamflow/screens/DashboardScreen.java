@@ -7,6 +7,7 @@ import org.teamflow.interfaces.Screen;
 import org.teamflow.controllers.UserController;
 import org.teamflow.models.Project;
 import org.teamflow.models.ProjectCreationResult;
+import org.teamflow.services.UserProjectRoleService;
 import java.util.Scanner;
 
 public class DashboardScreen implements Screen {
@@ -74,6 +75,9 @@ public class DashboardScreen implements Screen {
 
         if (result.getStatus() == 1) {
             System.out.println("Project created!");
+            UserProjectRoleService.assignRoleToUser(userController.getUserId(), project.getId(), "Scrum Master");
+
+            screenManager.switchTo(ScreenType.PROJECT);
         } else if (result.getStatus() == 2) {
             System.out.println("Project already exists.");
         } else {
