@@ -85,6 +85,4 @@ public class DashboardScreen implements Screen {
             System.out.println("Error creating project.");
         }
     }
-
-
 }
