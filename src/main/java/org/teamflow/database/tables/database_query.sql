@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS  `User_Project` (
                                 `project_id` INT NOT NULL,
                                 `role_id` INT NOT NULL,
                                 FOREIGN KEY (`user_id`) REFERENCES `User`(`id`),
-                                FOREIGN KEY (`project_id`) REFERENCES `Project`(`id`),
+                                FOREIGN KEY (`project_id`) REFERENCES `Project`(`id`) ON DELETE CASCADE,
                                 FOREIGN KEY (`role_id`) REFERENCES `Role`(`id`)
 );
 
@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS  `Epic` (
                         `id` INT AUTO_INCREMENT PRIMARY KEY,
                         `project_id` INT NOT NULL,
                         `title` VARCHAR(255) NOT NULL,
-                        FOREIGN KEY (`project_id`) REFERENCES `Project`(`id`)
+                        FOREIGN KEY (`project_id`) REFERENCES `Project`(`id`) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS  `UserStory` (
@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS  `Sprint` (
                           `project_id` INT NOT NULL,
                           `start_date` DATE NOT NULL,
                           `end_date` DATE NOT NULL,
-                          FOREIGN KEY (`project_id`) REFERENCES `Project`(`id`)
+                          FOREIGN KEY (`project_id`) REFERENCES `Project`(`id`) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS  `Sprint_Task` (
