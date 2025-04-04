@@ -6,7 +6,11 @@ import org.junit.jupiter.api.Test;
 import org.teamflow.controllers.ProjectController;
 import org.teamflow.database.DatabaseConnection;
 import org.teamflow.models.ProjectCreationResult;
+
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.Statement;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -36,4 +40,34 @@ public class ProjectControllerTest {
         ProjectCreationResult result = controller.createProject("testproject", "testdescription");
         assertEquals(1, result.getStatus(), "Should return 1 for successful creation");
     }
+
+    @Test
+    public void testEditProjectByName_UpdatesProject() {
+        try {
+            Connection conn = DatabaseConnection.getConnection();
+            Statement stmt = conn.createStatement();
+
+            stmt.executeUpdate("INSERT INTO project (name, description) VALUES ('testproject', 'testdescription')");
+
+            String simulatedInput = "testproject\nupdatedproject\nupdateddescription\n";
+            InputStream originalIn = System.in;
+            System.setIn(new ByteArrayInputStream(simulatedInput.getBytes()));
+
+            controller = new ProjectController();
+            controller.editProjectByName();
+
+            System.setIn(originalIn);
+
+            ResultSet rs = stmt.executeQuery("SELECT name, description FROM project WHERE name = 'updatedproject'");
+            assertTrue(rs.next(), "Updated project should exist");
+            assertEquals("updateddescription", rs.getString("description"), "Description should be updated");
+
+            stmt.executeUpdate("DELETE FROM project WHERE name = 'updatedproject'");
+            stmt.close();
+
+        } catch (Exception e) {
+            fail("Test failed due to exception: " + e.getMessage());
+        }
+    }
+
 }

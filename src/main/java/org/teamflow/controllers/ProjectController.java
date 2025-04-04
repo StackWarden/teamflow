@@ -86,4 +86,55 @@ public class ProjectController {
         }
     }
 
+    public void editProjectByName() {
+        System.out.print("Enter the name of the project to edit: ");
+        String oldName = scanner.nextLine();
+
+        String selectSql = "SELECT id, name, description FROM project WHERE name = ?";
+        String updateSql = "UPDATE project SET name = ?, description = ? WHERE id = ?";
+
+        try (
+                PreparedStatement selectStmt = DatabaseConnection.getConnection().prepareStatement(selectSql);
+                PreparedStatement updateStmt = DatabaseConnection.getConnection().prepareStatement(updateSql)
+        ) {
+            // Get current project
+            selectStmt.setString(1, oldName);
+            ResultSet rs = selectStmt.executeQuery();
+
+            if (!rs.next()) {
+                System.out.println("Project not found: " + oldName);
+                return;
+            }
+
+            int projectId = rs.getInt("id");
+            String currentName = rs.getString("name");
+            String currentDescription = rs.getString("description");
+
+            System.out.println("Current Project Name: " + currentName);
+            System.out.println("Current Description: " + currentDescription);
+
+            // Ask for new values
+            System.out.print("Enter new project name (leave blank to keep current): ");
+            String newName = scanner.nextLine();
+            if (newName.isBlank()) newName = currentName;
+
+            System.out.print("Enter new project description (leave blank to keep current): ");
+            String newDescription = scanner.nextLine();
+            if (newDescription.isBlank()) newDescription = currentDescription;
+
+            // Update project
+            updateStmt.setString(1, newName);
+            updateStmt.setString(2, newDescription);
+            updateStmt.setInt(3, projectId);
+
+            int rows = updateStmt.executeUpdate();
+            if (rows > 0) {
+                System.out.println("Project updated successfully.");
+            } else {
+                System.out.println("Failed to update project.");
+            }
+        } catch (SQLException e) {
+            System.out.println("Error editing project: " + e.getMessage());
+        }
+    }
 }

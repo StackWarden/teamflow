@@ -32,6 +32,7 @@ public class DashboardScreen implements Screen {
             System.out.println("3. View joined projects");
             System.out.println("4. Logout");
             System.out.println("5. Exit");
+            System.out.println("8. Edit a project name and description");
             System.out.println("9. Remove a user from a project");
             System.out.println("0. Delete account");
 
@@ -54,6 +55,9 @@ public class DashboardScreen implements Screen {
                 case "5" -> {
                     System.out.println("Goodbye!");
                     System.exit(0);
+                }
+                case "8" -> {
+                    projectController.editProjectByName();
                 }
                 case "9" -> {
                     projectController.removeUserFromProjectByName();
