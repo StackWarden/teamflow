@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test;
 import org.teamflow.controllers.ProjectController;
 import org.teamflow.database.DatabaseConnection;
 import org.teamflow.models.ProjectCreationResult;
-
 import java.sql.Connection;
 import java.sql.Statement;
 import static org.junit.jupiter.api.Assertions.*;

@@ -3,7 +3,6 @@ package org.teamflow.controllers;
 import org.teamflow.database.DatabaseConnection;
 import org.teamflow.models.Project;
 import org.teamflow.models.ProjectCreationResult;
-
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -21,18 +20,14 @@ public class ProjectController {
             stmt.setString(1, name);
             stmt.setString(2, description);
             stmt.executeUpdate();
-
             ResultSet keys = stmt.getGeneratedKeys();
             if (keys.next()) {
                 int projectId = keys.getInt(1);
                 Project project = new Project(projectId, name, description);
-                System.out.println("Created project: " + project);
-
                 return new ProjectCreationResult(1, project);
             } else {
                 return new ProjectCreationResult(0, null);
             }
-
         } catch (SQLException e) {
             if (e.getErrorCode() == 1062) {
                 return new ProjectCreationResult(2, null);
@@ -42,5 +37,4 @@ public class ProjectController {
             }
         }
     }
-
 }
