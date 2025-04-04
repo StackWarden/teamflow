@@ -32,10 +32,16 @@ public class DashboardScreen implements Screen {
             System.out.println("3. View joined projects");
             System.out.println("4. Logout");
             System.out.println("5. Exit");
+            System.out.println("0. Remove yourself from project");
 
             String choice = scanner.nextLine();
 
             switch (choice) {
+                case "0" -> {
+                    userController.removeUserFromProject();
+                    screenManager.switchTo(ScreenType.LOGIN);
+                    return;
+                }
                 case "1" -> createProject();
                 case "2" -> System.out.println("TODO: join project");
                 case "3" -> System.out.println("TODO: list projects");
