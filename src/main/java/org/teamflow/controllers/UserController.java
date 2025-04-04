@@ -1,7 +1,6 @@
 package org.teamflow.controllers;
 
 import org.teamflow.database.DatabaseConnection;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -64,12 +63,11 @@ public class UserController {
     }
 
     public void removeUserFromProject() {
+        String sql = "DELETE FROM user WHERE username = ?";
 
         if (!isLoggedIn || currentUser == null) {
             return;
         }
-
-        String sql = "DELETE FROM user WHERE username = ?";
 
         try (PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
             stmt.setString(1, currentUser);
