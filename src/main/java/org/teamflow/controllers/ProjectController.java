@@ -56,6 +56,19 @@ public class ProjectController {
         return "Project: " + getCurrentProjectName() + " (" + userRole + ")";
     }
 
+    public void deleteProject() {
+        String sql = "DELETE FROM Project WHERE id = ?";
+        if (currentProject == null) {
+            return;
+        }
+        try (PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
+            stmt.setInt(1, getCurrentProjectId());
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println("Failed to delete user: " + e.getMessage());
+        }
+    }
+
     public void removeUserFromProjectByName() {
         String getUserIdSql = "SELECT id FROM user WHERE username = ?";
         String getProjectIdSql = "SELECT id FROM project WHERE name = ?";
@@ -69,7 +82,7 @@ public class ProjectController {
             System.out.println("Enter username: ");
             String username = scanner.nextLine();
             System.out.println("Enter project name: ");
-            String projectName  = scanner.nextLine();
+            String projectName = scanner.nextLine();
 
             // Get user ID
             userStmt.setString(1, username);
