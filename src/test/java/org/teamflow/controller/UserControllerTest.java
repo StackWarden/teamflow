@@ -60,10 +60,10 @@ public class UserControllerTest {
     }
 
     @Test
-    public void testRemoveUserFromProject_DeletesUserAndLogsOut() {
+    public void testDeleteUserFromProject_DeletesUserAndLogsOut() {
         controller.registerUser("testuser");
 
-        controller.removeUserFromProject();
+        controller.deleteUser();
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement("SELECT * FROM user WHERE username = ?")) {
