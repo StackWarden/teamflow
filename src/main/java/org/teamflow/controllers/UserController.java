@@ -62,7 +62,7 @@ public class UserController {
         }
     }
 
-    public void removeUserFromProject() {
+    public void deleteUser() {
         String sql = "DELETE FROM user WHERE username = ?";
 
         if (!isLoggedIn || currentUser == null) {

@@ -39,7 +39,7 @@ public class DashboardScreen implements Screen {
 
             switch (choice) {
                 case "0" -> {
-                    userController.removeUserFromProject();
+                    userController.deleteUser();
                     screenManager.switchTo(ScreenType.LOGIN);
                     return;
                 }
