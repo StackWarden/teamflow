@@ -1,6 +1,5 @@
 package org.teamflow.controllers;
 
-import org.teamflow.FileUtil;
 import org.teamflow.database.DatabaseConnection;
 import org.teamflow.models.User;
 import java.sql.Connection;
@@ -9,7 +8,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class UserController {
-    private User loggedUser = null;
+    private User currentUser = null;
     private boolean isLoggedIn = false;
 
     public boolean isLoggedIn() {
@@ -20,11 +19,11 @@ public class UserController {
         isLoggedIn = loggedIn;
     }
 
-    public User getLoggedUser() {
-        return loggedUser;
-    }
+    public User getLoggedUser() { return currentUser;}
 
-    public int getUserId() { return loggedUser.getId();}
+    public int getUserId() { return currentUser.getId();}
+
+    public String getUsername() { return currentUser.getUsername();}
 
     public void logout() {
         isLoggedIn = false;
@@ -73,7 +72,22 @@ public class UserController {
             }
         }
     }
+    public void removeUserFromProject() {
+        String sql = "DELETE FROM user WHERE username = ?";
 
+        if (!isLoggedIn || getUsername() == null) {
+            return;
+        }
+
+        try (PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
+            stmt.setString(1, getUsername());
+            stmt.executeUpdate();
+            setLoggedIn(false);
+            logout();
+        } catch (SQLException e) {
+            System.out.println("Failed to delete user: " + e.getMessage());
+        }
+    }
     private User createUserObject(ResultSet rs) throws SQLException {
         if (!rs.next()) {
             return null;
@@ -82,7 +96,7 @@ public class UserController {
         User user = new User();
         user.setId(rs.getInt("id"));
         user.setUsername(rs.getString("username"));
-        loggedUser = user;
+        currentUser = user;
         setLoggedIn(true);
 
         return user;

@@ -9,9 +9,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Scanner;
 
 public class ProjectController {
     private Project currentProject = null;
+    Scanner scanner = new Scanner(System.in);
 
     public int getCurrentProjectId() { return currentProject.getId();}
 
@@ -53,4 +55,54 @@ public class ProjectController {
         String userRole = UserProjectRoleService.getUserRoleForProject(user.getId(), getCurrentProjectId());
         return "Project: " + getCurrentProjectName() + " (" + userRole + ")";
     }
+
+    public void removeUserFromProjectByName() {
+        String getUserIdSql = "SELECT id FROM user WHERE username = ?";
+        String getProjectIdSql = "SELECT id FROM project WHERE name = ?";
+        String deleteLinkSql = "DELETE FROM User_Project WHERE user_id = ? AND project_id = ?";
+
+        try (
+                PreparedStatement userStmt = DatabaseConnection.getConnection().prepareStatement(getUserIdSql);
+                PreparedStatement projectStmt = DatabaseConnection.getConnection().prepareStatement(getProjectIdSql);
+                PreparedStatement deleteStmt = DatabaseConnection.getConnection().prepareStatement(deleteLinkSql)
+        ) {
+            System.out.println("Enter username: ");
+            String username = scanner.nextLine();
+            System.out.println("Enter project name: ");
+            String projectName  = scanner.nextLine();
+
+            // Get user ID
+            userStmt.setString(1, username);
+            ResultSet userRs = userStmt.executeQuery();
+            if (!userRs.next()) {
+                System.out.println("User not found: " + username);
+                return;
+            }
+            int userId = userRs.getInt("id");
+
+            // Get project ID
+            projectStmt.setString(1, projectName);
+            ResultSet projectRs = projectStmt.executeQuery();
+            if (!projectRs.next()) {
+                System.out.println("Project not found: " + projectName);
+                return;
+            }
+            int projectId = projectRs.getInt("id");
+
+            // Delete the link
+            deleteStmt.setInt(1, userId);
+            deleteStmt.setInt(2, projectId);
+            int affectedRows = deleteStmt.executeUpdate();
+
+            if (affectedRows > 0) {
+                System.out.println("User removed from project.");
+            } else {
+                System.out.println("User was not assigned to the project.");
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Failed to remove user from project: " + e.getMessage());
+        }
+    }
+
 }

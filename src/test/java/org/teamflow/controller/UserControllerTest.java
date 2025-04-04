@@ -6,11 +6,12 @@ import org.teamflow.controllers.UserController;
 import org.teamflow.database.DatabaseConnection;
 import org.teamflow.models.User;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.Statement;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class UserControllerTest {
-
     private static UserController controller;
 
     @BeforeEach
@@ -88,5 +89,26 @@ public class UserControllerTest {
         User logged = fresh.getLoggedUser();
         assertNotNull(logged);
         assertEquals("anotheruser", logged.getUsername());
+    }
+
+    @Test
+    public void testRemoveUserFromProject_DeletesUserAndLogsOut() {
+        controller.registerUser("testuser");
+
+        controller.removeUserFromProject();
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement("SELECT * FROM user WHERE username = ?")) {
+
+            stmt.setString(1, "testuser");
+            ResultSet rs = stmt.executeQuery();
+
+            assertFalse(rs.next(), "User should be deleted from database");
+
+        } catch (Exception e) {
+            fail("Database check failed: " + e.getMessage());
+        }
+
+        assertFalse(controller.isLoggedIn(), "User should be logged out after deletion");
     }
 }
