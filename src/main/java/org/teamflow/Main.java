@@ -3,6 +3,10 @@ package org.teamflow;
 import org.teamflow.controllers.ProjectController;
 import org.teamflow.controllers.UserController;
 import org.teamflow.database.DatabaseConnection;
+import org.teamflow.models.Project;
+import org.teamflow.models.ProjectCreationResult;
+import org.teamflow.models.User;
+import org.teamflow.services.UserProjectRoleService;
 
 import java.util.Scanner;
 
@@ -78,12 +82,17 @@ public class Main {
         System.out.println("What is your description?");
         String description = scanner.nextLine();
 
-        int status = projectController.createProject(name, description);
+        ProjectCreationResult result = projectController.createProject(name, description);
+        Project project = result.getProject();
 
-        if (status == 1) {
+
+        if (result.getStatus() == 1) {
             System.out.println("Project successfully created!");
-        } else {
-            System.out.println("Project already exists, try another one!");
         }
+        else if(result.getStatus() == 2) {
+            System.out.println("Project already exists, try another one!");
+            return;
+        }
+        UserProjectRoleService.assignRoleToUser(userController.getUserId(), project.getId(), "Scrum Master");
     }
 }

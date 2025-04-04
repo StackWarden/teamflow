@@ -24,6 +24,8 @@ public class UserController {
         return loggedUser;
     }
 
+    public int getUserId() { return loggedUser.getId();}
+
     public int loginUser(String username) {
         String sql = "SELECT * FROM user WHERE username = ?";
 

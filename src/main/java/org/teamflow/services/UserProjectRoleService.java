@@ -60,4 +60,32 @@ public class UserProjectRoleService {
             throw new RuntimeException("Failed to assign role", e);
         }
     }
+
+    public static String getUserRoleForProject(int userId, int projectId) {
+        String sql = """
+        SELECT r.role_name
+        FROM user_project up
+        JOIN role r ON up.role_id = r.id
+        WHERE up.user_id = ? AND up.project_id = ?
+    """;
+
+        try (
+                Connection conn = DatabaseConnection.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)
+        ) {
+            stmt.setInt(1, userId);
+            stmt.setInt(2, projectId);
+
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getString("role_name");
+            } else {
+                return null;
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Error retrieving user role: " + e.getMessage());
+            return null;
+        }
+    }
 }
