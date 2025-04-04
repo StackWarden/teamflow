@@ -73,10 +73,6 @@ public class DatabaseConnection {
                 executeSQLFromFile(connection, "src/main/java/org/teamflow/database/tables/seeder.sql");
                 System.out.println("Seed data inserted.");
             }
-            System.out.println("Database " + dbName + " setup complete.");
-            System.out.println();
-            System.out.println();
-
         } catch (Exception e) {
             System.out.println("Database setup failed: " + e.getMessage());
             throw new RuntimeException("Initialization failed", e);

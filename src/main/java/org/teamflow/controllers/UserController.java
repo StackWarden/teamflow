@@ -17,6 +17,10 @@ public class UserController {
         isLoggedIn = loggedIn;
     }
 
+    public void logout() {
+        isLoggedIn = false;
+    }
+
     public int loginUser(String username) {
         String sql = "SELECT * FROM user WHERE username = ?";
 

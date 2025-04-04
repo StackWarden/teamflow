@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.teamflow.controllers.ProjectController;
 import org.teamflow.database.DatabaseConnection;
+import org.teamflow.models.ProjectCreationResult;
 import java.sql.Connection;
 import java.sql.Statement;
 import static org.junit.jupiter.api.Assertions.*;
@@ -32,7 +33,7 @@ public class ProjectControllerTest {
 
     @Test
     public void testCreateProject_Returns1() {
-        int result = controller.createProject("testproject", "testdescription");
-        assertEquals(1, result, "Should return 1 for successful creation");
+        ProjectCreationResult result = controller.createProject("testproject", "testdescription");
+        assertEquals(1, result.getStatus(), "Should return 1 for successful creation");
     }
 }
