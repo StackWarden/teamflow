@@ -8,10 +8,8 @@ import org.teamflow.interfaces.Screen;
 import org.teamflow.controllers.UserController;
 import org.teamflow.models.Project;
 import org.teamflow.models.ProjectCreationResult;
+import org.teamflow.services.UserProjectRoleService;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -62,7 +60,7 @@ public class DashboardScreen implements Screen {
                     System.exit(0);
                 }
                 case "9" -> {
-                    projectController.removeUserFromProjectByName();
+                    removeUserFromProjectUI();
                 }
                 default -> System.out.println("Invalid option.");
             }
@@ -80,10 +78,29 @@ public class DashboardScreen implements Screen {
 
         if (result.getStatus() == 1) {
             System.out.println("Project created!");
+            UserProjectRoleService.assignRoleToUser(userController.getUserId(), project.getId(), "Scrum Master");
+
+            screenManager.switchTo(ScreenType.PROJECT);
         } else if (result.getStatus() == 2) {
             System.out.println("Project already exists.");
         } else {
             System.out.println("Error creating project.");
+        }
+    }
+
+    private void removeUserFromProjectUI() {
+        System.out.print("Enter username to remove from project: ");
+        String username = scanner.nextLine();
+
+        System.out.print("Enter project name: ");
+        String projectName = scanner.nextLine();
+
+        boolean success = projectController.removeUserFromProjectByName(username, projectName);
+
+        if (success) {
+            System.out.println("User removed from project.");
+        } else {
+            System.out.println("Could not remove user from project.");
         }
     }
 

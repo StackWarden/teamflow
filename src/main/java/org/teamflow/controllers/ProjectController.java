@@ -3,6 +3,8 @@ package org.teamflow.controllers;
 import org.teamflow.database.DatabaseConnection;
 import org.teamflow.models.Project;
 import org.teamflow.models.ProjectCreationResult;
+import org.teamflow.models.User;
+import org.teamflow.services.UserProjectRoleService;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -11,7 +13,10 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class ProjectController {
+    private Project currentProject = null;
     Scanner scanner = new Scanner(System.in);
+
+    public int getCurrentProjectId() { return currentProject.getId();}
 
     public ProjectCreationResult createProject(String name, String description) {
         String sql = "INSERT INTO Project (name, description) VALUES (?, ?)";
@@ -24,6 +29,7 @@ public class ProjectController {
             if (keys.next()) {
                 int projectId = keys.getInt(1);
                 Project project = new Project(projectId, name, description);
+                currentProject = project;
                 return new ProjectCreationResult(1, project);
             } else {
                 return new ProjectCreationResult(0, null);
@@ -37,8 +43,33 @@ public class ProjectController {
             }
         }
     }
+    public Project getCurrentProject() {
+        return currentProject;
+    }
 
-    public void removeUserFromProjectByName() {
+    public String getCurrentProjectName() {
+        return currentProject.getName();
+    }
+
+    public String getProjectNameAndUserRole(User user) {
+        String userRole = UserProjectRoleService.getUserRoleForProject(user.getId(), getCurrentProjectId());
+        return "Project: " + getCurrentProjectName() + " (" + userRole + ")";
+    }
+
+    public void deleteProject() {
+        String sql = "DELETE FROM Project WHERE id = ?";
+        if (currentProject == null) {
+            return;
+        }
+        try (PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
+            stmt.setInt(1, getCurrentProjectId());
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println("Failed to delete user: " + e.getMessage());
+        }
+    }
+
+    public boolean removeUserFromProjectByName(String username, String projectName) {
         String getUserIdSql = "SELECT id FROM user WHERE username = ?";
         String getProjectIdSql = "SELECT id FROM project WHERE name = ?";
         String deleteLinkSql = "DELETE FROM User_Project WHERE user_id = ? AND project_id = ?";
@@ -48,17 +79,12 @@ public class ProjectController {
                 PreparedStatement projectStmt = DatabaseConnection.getConnection().prepareStatement(getProjectIdSql);
                 PreparedStatement deleteStmt = DatabaseConnection.getConnection().prepareStatement(deleteLinkSql)
         ) {
-            System.out.println("Enter username: ");
-            String username = scanner.nextLine();
-            System.out.println("Enter project name: ");
-            String projectName  = scanner.nextLine();
-
             // Get user ID
             userStmt.setString(1, username);
             ResultSet userRs = userStmt.executeQuery();
             if (!userRs.next()) {
                 System.out.println("User not found: " + username);
-                return;
+                return false;
             }
             int userId = userRs.getInt("id");
 
@@ -67,7 +93,7 @@ public class ProjectController {
             ResultSet projectRs = projectStmt.executeQuery();
             if (!projectRs.next()) {
                 System.out.println("Project not found: " + projectName);
-                return;
+                return false;
             }
             int projectId = projectRs.getInt("id");
 
@@ -76,14 +102,11 @@ public class ProjectController {
             deleteStmt.setInt(2, projectId);
             int affectedRows = deleteStmt.executeUpdate();
 
-            if (affectedRows > 0) {
-                System.out.println("User removed from project.");
-            } else {
-                System.out.println("User was not assigned to the project.");
-            }
+            return affectedRows > 0;
 
         } catch (SQLException e) {
             System.out.println("Failed to remove user from project: " + e.getMessage());
+            return false;
         }
     }
 

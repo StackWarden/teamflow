@@ -19,8 +19,8 @@ CREATE TABLE IF NOT EXISTS  `User_Project` (
                                 `user_id` INT NOT NULL,
                                 `project_id` INT NOT NULL,
                                 `role_id` INT NOT NULL,
-                                FOREIGN KEY (`user_id`) REFERENCES `User`(`id`),
-                                FOREIGN KEY (`project_id`) REFERENCES `Project`(`id`),
+                                FOREIGN KEY (`user_id`) REFERENCES `User`(`id`) ON DELETE CASCADE,
+                                FOREIGN KEY (`project_id`) REFERENCES `Project`(`id`) ON DELETE CASCADE,
                                 FOREIGN KEY (`role_id`) REFERENCES `Role`(`id`)
 );
 
@@ -28,14 +28,14 @@ CREATE TABLE IF NOT EXISTS  `Epic` (
                         `id` INT AUTO_INCREMENT PRIMARY KEY,
                         `project_id` INT NOT NULL,
                         `title` VARCHAR(255) NOT NULL,
-                        FOREIGN KEY (`project_id`) REFERENCES `Project`(`id`)
+                        FOREIGN KEY (`project_id`) REFERENCES `Project`(`id`) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS  `UserStory` (
                              `id` INT AUTO_INCREMENT PRIMARY KEY,
                              `epic_id` INT NOT NULL,
                              `description` TEXT,
-                             FOREIGN KEY (`epic_id`) REFERENCES `Epic`(`id`)
+                             FOREIGN KEY (`epic_id`) REFERENCES `Epic`(`id`) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS  `Task` (
@@ -43,15 +43,15 @@ CREATE TABLE IF NOT EXISTS  `Task` (
                         `title` VARCHAR(255) NOT NULL,
                         `status` VARCHAR(50) NOT NULL,
                         `story_id` INT,
-                        FOREIGN KEY (`story_id`) REFERENCES `UserStory`(`id`)
+                        FOREIGN KEY (`story_id`) REFERENCES `UserStory`(`id`) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS  `User_Task` (
                              `user_id` INT NOT NULL,
                              `task_id` INT NOT NULL,
                              PRIMARY KEY (`user_id`, `task_id`),
-                             FOREIGN KEY (`user_id`) REFERENCES `User`(`id`),
-                             FOREIGN KEY (`task_id`) REFERENCES `Task`(`id`)
+                             FOREIGN KEY (`user_id`) REFERENCES `User`(`id`) ON DELETE CASCADE,
+                             FOREIGN KEY (`task_id`) REFERENCES `Task`(`id`) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS  `Sprint` (
@@ -59,15 +59,15 @@ CREATE TABLE IF NOT EXISTS  `Sprint` (
                           `project_id` INT NOT NULL,
                           `start_date` DATE NOT NULL,
                           `end_date` DATE NOT NULL,
-                          FOREIGN KEY (`project_id`) REFERENCES `Project`(`id`)
+                          FOREIGN KEY (`project_id`) REFERENCES `Project`(`id`) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS  `Sprint_Task` (
                                `sprint_id` INT NOT NULL,
                                `task_id` INT NOT NULL,
                                PRIMARY KEY (`sprint_id`, `task_id`),
-                               FOREIGN KEY (`sprint_id`) REFERENCES `Sprint`(`id`),
-                               FOREIGN KEY (`task_id`) REFERENCES `Task`(`id`)
+                               FOREIGN KEY (`sprint_id`) REFERENCES `Sprint`(`id`) ON DELETE CASCADE,
+                               FOREIGN KEY (`task_id`) REFERENCES `Task`(`id`) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS  `Chatroom` (
@@ -78,42 +78,42 @@ CREATE TABLE IF NOT EXISTS  `Chatroom` (
 CREATE TABLE IF NOT EXISTS  `Message` (
                            `id` INT AUTO_INCREMENT PRIMARY KEY,
                            `chatroom_id` INT NOT NULL,
-                           `user_id` INT NOT NULL,
+                           `user_id` INT,
                            `content` TEXT,
                            `timestamp` DATETIME DEFAULT CURRENT_TIMESTAMP,
-                           FOREIGN KEY (`chatroom_id`) REFERENCES `Chatroom`(`id`),
-                           FOREIGN KEY (`user_id`) REFERENCES `User`(`id`)
+                           FOREIGN KEY (`chatroom_id`) REFERENCES `Chatroom`(`id`) ON DELETE CASCADE,
+                           FOREIGN KEY (`user_id`) REFERENCES `User`(`id`) ON DELETE SET NULL
 );
 
 CREATE TABLE IF NOT EXISTS  `Epic_Chatroom` (
                                  `chatroom_id` INT NOT NULL,
                                  `epic_id` INT NOT NULL,
                                  PRIMARY KEY (`chatroom_id`, `epic_id`),
-                                 FOREIGN KEY (`chatroom_id`) REFERENCES `Chatroom`(`id`),
-                                 FOREIGN KEY (`epic_id`) REFERENCES `Epic`(`id`)
+                                 FOREIGN KEY (`chatroom_id`) REFERENCES `Chatroom`(`id`) ON DELETE CASCADE,
+                                 FOREIGN KEY (`epic_id`) REFERENCES `Epic`(`id`) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS  `Story_Chatroom` (
                                   `chatroom_id` INT NOT NULL,
                                   `story_id` INT NOT NULL,
                                   PRIMARY KEY (`chatroom_id`, `story_id`),
-                                  FOREIGN KEY (`chatroom_id`) REFERENCES `Chatroom`(`id`),
-                                  FOREIGN KEY (`story_id`) REFERENCES `UserStory`(`id`)
+                                  FOREIGN KEY (`chatroom_id`) REFERENCES `Chatroom`(`id`) ON DELETE CASCADE,
+                                  FOREIGN KEY (`story_id`) REFERENCES `UserStory`(`id`) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS  `Task_Chatroom` (
                                  `chatroom_id` INT NOT NULL,
                                  `task_id` INT NOT NULL,
                                  PRIMARY KEY (`chatroom_id`, `task_id`),
-                                 FOREIGN KEY (`chatroom_id`) REFERENCES `Chatroom`(`id`),
-                                 FOREIGN KEY (`task_id`) REFERENCES `Task`(`id`)
+                                 FOREIGN KEY (`chatroom_id`) REFERENCES `Chatroom`(`id`) ON DELETE CASCADE,
+                                 FOREIGN KEY (`task_id`) REFERENCES `Task`(`id`) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS  `Sprint_Chatroom` (
                                    `chatroom_id` INT NOT NULL,
                                    `sprint_id` INT NOT NULL,
                                    PRIMARY KEY (`chatroom_id`, `sprint_id`),
-                                   FOREIGN KEY (`chatroom_id`) REFERENCES `Chatroom`(`id`),
-                                   FOREIGN KEY (`sprint_id`) REFERENCES `Sprint`(`id`)
+                                   FOREIGN KEY (`chatroom_id`) REFERENCES `Chatroom`(`id`) ON DELETE CASCADE,
+                                   FOREIGN KEY (`sprint_id`) REFERENCES `Sprint`(`id`) ON DELETE CASCADE
 );
 

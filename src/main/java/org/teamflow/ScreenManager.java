@@ -6,6 +6,7 @@ import org.teamflow.enums.ScreenType;
 import org.teamflow.interfaces.Screen;
 import org.teamflow.screens.DashboardScreen;
 import org.teamflow.screens.LoginScreen;
+import org.teamflow.screens.ProjectScreen;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -26,6 +27,7 @@ public class ScreenManager {
         // en dan hieronder register(ScreenType.USERSTORY, new UserStoryScreen(alle meuk));
         register(ScreenType.LOGIN, new LoginScreen(scanner, userController, this));
         register(ScreenType.DASHBOARD, new DashboardScreen(scanner, projectController, userController, this));
+        register(ScreenType.PROJECT, new ProjectScreen(scanner, projectController, userController, this));
     }
 
     private void register(ScreenType type, Screen screen) {
