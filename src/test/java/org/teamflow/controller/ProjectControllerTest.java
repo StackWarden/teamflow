@@ -9,18 +9,13 @@ import org.teamflow.controllers.UserController;
 import org.teamflow.database.DatabaseConnection;
 import org.teamflow.models.Project;
 import org.teamflow.models.ProjectCreationResult;
-
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import org.teamflow.services.UserProjectRoleService;
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ProjectControllerTest {
-
     private static ProjectController controller;
     private static UserController userController;
 

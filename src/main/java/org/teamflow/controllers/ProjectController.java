@@ -5,7 +5,6 @@ import org.teamflow.models.Project;
 import org.teamflow.models.ProjectCreationResult;
 import org.teamflow.models.User;
 import org.teamflow.services.UserProjectRoleService;
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Scanner;
