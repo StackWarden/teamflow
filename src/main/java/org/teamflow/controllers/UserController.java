@@ -1,14 +1,15 @@
 package org.teamflow.controllers;
 
 import org.teamflow.database.DatabaseConnection;
+import org.teamflow.models.User;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class UserController {
+    private User currentUser = null;
     private boolean isLoggedIn = false;
-    private String currentUser;
 
     public boolean isLoggedIn() {
         return isLoggedIn;
@@ -17,6 +18,12 @@ public class UserController {
     public void setLoggedIn(boolean loggedIn) {
         isLoggedIn = loggedIn;
     }
+
+    public User getLoggedUser() { return currentUser;}
+
+    public int getUserId() { return currentUser.getId();}
+
+    public String getUsername() { return currentUser.getUsername();}
 
     public void logout() {
         isLoggedIn = false;
@@ -31,51 +38,68 @@ public class UserController {
         ) {
             ps.setString(1, username);
             ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                setLoggedIn(true);
-                currentUser = username;
-                return 1;
-            } else {
-                return 2;
-            }
+            User user = createUserObject(rs);
+            return (user != null) ? 1 : 2;
+
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
     public int registerUser(String username) {
-        String sql = "INSERT INTO user (username) VALUES (?)";
+        String insertSQL = "INSERT INTO user (username) VALUES (?)";
+        String selectSQL = "SELECT * FROM user WHERE username = ?";
 
-        try (PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
-            stmt.setString(1, username);
-            stmt.executeUpdate();
-            setLoggedIn(true);
-            currentUser = username;
+        try (
+                Connection conn = DatabaseConnection.getConnection();
+                PreparedStatement insertStmt = conn.prepareStatement(insertSQL);
+        ) {
+            insertStmt.setString(1, username);
+            insertStmt.executeUpdate();
+
+            try (PreparedStatement selectStmt = conn.prepareStatement(selectSQL)) {
+                selectStmt.setString(1, username);
+                ResultSet rs = selectStmt.executeQuery();
+                createUserObject(rs);
+            }
             return 1;
         } catch (SQLException e) {
             if (e.getErrorCode() == 1062) {
                 return 2;
             } else {
                 System.out.println("Failed to register user: " + e.getMessage());
+                return 0;
             }
-            return 0;
         }
     }
 
-    public void removeUserFromProject() {
+    public void deleteUser() {
         String sql = "DELETE FROM user WHERE username = ?";
 
-        if (!isLoggedIn || currentUser == null) {
+        if (!isLoggedIn || getUsername() == null) {
             return;
         }
 
         try (PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
-            stmt.setString(1, currentUser);
+            stmt.setString(1, getUsername());
             stmt.executeUpdate();
             setLoggedIn(false);
-            currentUser = null;
+            logout();
         } catch (SQLException e) {
             System.out.println("Failed to delete user: " + e.getMessage());
         }
+    }
+    private User createUserObject(ResultSet rs) throws SQLException {
+        if (!rs.next()) {
+            return null;
+        }
+
+        User user = new User();
+        user.setId(rs.getInt("id"));
+        user.setUsername(rs.getString("username"));
+        currentUser = user;
+        setLoggedIn(true);
+
+        return user;
     }
 }

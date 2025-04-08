@@ -1,10 +1,10 @@
 package org.teamflow.controller;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.teamflow.controllers.UserController;
 import org.teamflow.database.DatabaseConnection;
+import org.teamflow.models.User;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -12,11 +12,10 @@ import java.sql.Statement;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class UserControllerTest {
-
     private static UserController controller;
 
-    @BeforeAll
-    public static void setup() {
+    @BeforeEach
+    public void setup() {
         controller = new UserController();
     }
 
@@ -26,6 +25,7 @@ public class UserControllerTest {
             Connection conn = DatabaseConnection.getConnection();
             Statement stmt = conn.createStatement();
             stmt.executeUpdate("DELETE FROM user WHERE username = 'testuser'");
+            stmt.executeUpdate("DELETE FROM user WHERE username = 'anotheruser'");
             stmt.close();
         } catch (Exception e) {
             throw new RuntimeException("Failed to clean database: " + e.getMessage(), e);
@@ -33,17 +33,15 @@ public class UserControllerTest {
     }
 
     @Test
-    public void testLogin_Returns1() {
-        int result = controller.registerUser("testuser");
-        assertEquals(1, result, "Should return 1 for successful login");
-        assertTrue(controller.isLoggedIn(), "user should be logged in");
-    }
-
-    @Test
     public void testRegisterNewUser_Returns1() {
         int result = controller.registerUser("testuser");
         assertEquals(1, result, "Should return 1 for successful registration");
         assertTrue(controller.isLoggedIn(), "User should be logged in after registration");
+
+        User logged = controller.getLoggedUser();
+        assertNotNull(logged, "Logged-in user should not be null");
+        assertEquals("testuser", logged.getUsername(), "Username should match registered name");
+        assertTrue(logged.getId() > 0, "User ID should be greater than 0");
     }
 
     @Test
@@ -54,16 +52,50 @@ public class UserControllerTest {
     }
 
     @Test
-    public void testIsLoggedInInitiallyFalse() {
-        UserController fresh = new UserController();
-        assertFalse(fresh.isLoggedIn(), "User should not be logged in before registration");
+    public void testLoginWithUnregisteredUser_Returns2() {
+        int result = controller.loginUser("nonexistent");
+        assertEquals(2, result, "Should return 2 for user not found");
+        assertFalse(controller.isLoggedIn(), "User should not be logged in");
+        assertNull(controller.getLoggedUser(), "No user should be stored in loggedUser");
     }
 
     @Test
-    public void testRemoveUserFromProject_DeletesUserAndLogsOut() {
+    public void testLoginWithRegisteredUser_Returns1() {
         controller.registerUser("testuser");
 
-        controller.removeUserFromProject();
+        UserController fresh = new UserController();
+        int result = fresh.loginUser("testuser");
+
+        assertEquals(1, result, "Should return 1 for successful login");
+        assertTrue(fresh.isLoggedIn(), "User should be logged in");
+        assertNotNull(fresh.getLoggedUser(), "Logged user should not be null");
+        assertEquals("testuser", fresh.getLoggedUser().getUsername(), "Username should match");
+    }
+
+    @Test
+    public void testIsLoggedInInitiallyFalse() {
+        UserController fresh = new UserController();
+        assertFalse(fresh.isLoggedIn(), "User should not be logged in before registration");
+        assertNull(fresh.getLoggedUser(), "Logged user should be null before login");
+    }
+
+    @Test
+    public void testRegisterAndLoginFlowWorksCorrectly() {
+        UserController fresh = new UserController();
+
+        int registerResult = fresh.registerUser("anotheruser");
+        assertEquals(1, registerResult);
+
+        User logged = fresh.getLoggedUser();
+        assertNotNull(logged);
+        assertEquals("anotheruser", logged.getUsername());
+    }
+
+    @Test
+    public void testDeleteUserFromProject_DeletesUserAndLogsOut() {
+        controller.registerUser("testuser");
+
+        controller.deleteUser();
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement("SELECT * FROM user WHERE username = ?")) {

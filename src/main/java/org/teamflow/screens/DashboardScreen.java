@@ -7,6 +7,8 @@ import org.teamflow.interfaces.Screen;
 import org.teamflow.controllers.UserController;
 import org.teamflow.models.Project;
 import org.teamflow.models.ProjectCreationResult;
+import org.teamflow.services.UserProjectRoleService;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class DashboardScreen implements Screen {
@@ -40,12 +42,12 @@ public class DashboardScreen implements Screen {
 
             switch (choice) {
                 case "0" -> {
-                    userController.removeUserFromProject();
+                    userController.deleteUser();
                     screenManager.switchTo(ScreenType.LOGIN);
                     return;
                 }
                 case "1" -> createProject();
-                case "2" -> System.out.println("TODO: join project");
+                case "2" -> joinProject();
                 case "3" -> System.out.println("TODO: list projects");
                 case "4" -> {
                     userController.logout(); // You should add this method
@@ -60,9 +62,9 @@ public class DashboardScreen implements Screen {
                     projectController.editProjectByName();
                 }
                 case "9" -> {
-                    projectController.removeUserFromProjectByName();
+                    removeUserFromProjectUI();
                 }
-                default -> System.out.println("Invalid option.");
+                default -> System.out.println();
             }
         }
     }
@@ -78,10 +80,49 @@ public class DashboardScreen implements Screen {
 
         if (result.getStatus() == 1) {
             System.out.println("Project created!");
+            UserProjectRoleService.assignRoleToUser(userController.getUserId(), project.getId(), "Scrum Master");
+
+            screenManager.switchTo(ScreenType.PROJECT);
         } else if (result.getStatus() == 2) {
             System.out.println("Project already exists.");
         } else {
             System.out.println("Error creating project.");
+        }
+    }
+
+    private void removeUserFromProjectUI() {
+        System.out.print("Enter username to remove from project: ");
+        String username = scanner.nextLine();
+
+        System.out.print("Enter project name: ");
+        String projectName = scanner.nextLine();
+
+        boolean success = projectController.removeUserFromProjectByName(username, projectName);
+
+        if (success) {
+            System.out.println("User removed from project.");
+        } else {
+            System.out.println("Could not remove user from project.");
+        }
+    }
+
+    public void joinProject() {
+        System.out.println("Which project to join?");
+        ArrayList<Project> projects = projectController.listProjects();
+        for (Project project : projects) {
+            if (!UserProjectRoleService.isMemberOfProject(userController.getUserId(), project.getId())) {
+                System.out.println(project.getId() + ". " + project.getName());
+            }
+        }
+
+        int choice = scanner.nextInt();
+
+        boolean exists = projects.stream().anyMatch(p -> p.getId() == choice);
+
+        if (exists) {
+            UserProjectRoleService.assignRoleToUser(userController.getUserId(), choice, "Developer");
+        } else {
+            System.out.println("Project does not exist.");
         }
     }
 }
