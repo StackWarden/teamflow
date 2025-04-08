@@ -50,7 +50,7 @@ public class DashboardScreen implements Screen {
                 case "2" -> joinProject();
                 case "3" -> System.out.println("TODO: list projects");
                 case "4" -> {
-                    userController.logout(); // You should add this method
+                    userController.logout();
                     screenManager.switchTo(ScreenType.LOGIN);
                     return;
                 }
@@ -59,7 +59,7 @@ public class DashboardScreen implements Screen {
                     System.exit(0);
                 }
                 case "8" -> {
-                    projectController.editProjectByName();
+                    editProjectUI();
                 }
                 case "9" -> {
                     removeUserFromProjectUI();
@@ -108,7 +108,7 @@ public class DashboardScreen implements Screen {
 
     public void joinProject() {
         System.out.println("Which project to join?");
-        ArrayList<Project> projects = projectController.listProjects();
+        ArrayList<Project> projects = displayAllProjects();
         for (Project project : projects) {
             if (!UserProjectRoleService.isMemberOfProject(userController.getUserId(), project.getId())) {
                 System.out.println(project.getId() + ". " + project.getName());
@@ -125,4 +125,62 @@ public class DashboardScreen implements Screen {
             System.out.println("Project does not exist.");
         }
     }
+
+    public ArrayList<Project> displayAllProjects() {
+        ArrayList<Project> allProjects = projectController.listProjects();
+        System.out.println("All Projects:");
+        for (Project project : allProjects) {
+            System.out.println(project.getId() + ": " + project.getName() + " - " + project.getDescription());
+        }
+        return allProjects;
+    }
+
+    public void displayScrumMasterProjects() {
+        int uid = userController.getUserId();
+        ArrayList<Project> scrumMasterProjects = projectController.listProjectsWhereScrummaster(uid);
+        System.out.println("Your Scrum Master Projects:");
+        for (Project project : scrumMasterProjects) {
+            System.out.println(project.getId() + ": " + project.getName() + " - " + project.getDescription());
+        }
+    }
+
+    public void editProjectUI() {
+        System.out.println("Select the Project ID to edit:");
+        displayScrumMasterProjects();
+
+        System.out.print("Enter Project ID: ");
+        int projectId;
+        try {
+            projectId = Integer.parseInt(scanner.nextLine());
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid project ID.");
+            return;
+        }
+
+        Project projectToEdit = projectController.getProjectById(projectId);
+
+        if (projectToEdit == null) {
+            System.out.println("Project not found or you're not the Scrum Master of this project.");
+            return;
+        }
+
+        System.out.println("Editing Project: " + projectToEdit.getName());
+        System.out.println("Current Description: " + projectToEdit.getDescription());
+
+        System.out.print("Enter new project name (leave blank to keep current): ");
+        String newName = scanner.nextLine();
+        if (newName.isBlank()) newName = projectToEdit.getName();
+
+        System.out.print("Enter new project description (leave blank to keep current): ");
+        String newDescription = scanner.nextLine();
+        if (newDescription.isBlank()) newDescription = projectToEdit.getDescription();
+
+        boolean success = projectController.editProject(projectId, newName, newDescription);
+        if (success) {
+            System.out.println("Project updated successfully!");
+        } else {
+            System.out.println("Failed to update the project.");
+        }
+    }
+
 }

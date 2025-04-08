@@ -5,10 +5,8 @@ import org.teamflow.models.Project;
 import org.teamflow.models.ProjectCreationResult;
 import org.teamflow.models.User;
 import org.teamflow.services.UserProjectRoleService;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -42,9 +40,6 @@ public class ProjectController {
                 return new ProjectCreationResult(0, null);
             }
         }
-    }
-    public Project getCurrentProject() {
-        return currentProject;
     }
 
     public String getCurrentProjectName() {
@@ -80,11 +75,8 @@ public class ProjectController {
                 PreparedStatement deleteStmt = DatabaseConnection.getConnection().prepareStatement(deleteLinkSql)
         ) {
             System.out.println("Enter username: ");
-            String username = scanner.nextLine();
             System.out.println("Enter project name: ");
-            String projectName  = scanner.nextLine();
 
-            // Get user ID
             userStmt.setString(1, username);
             ResultSet userRs = userStmt.executeQuery();
             if (!userRs.next()) {
@@ -93,7 +85,6 @@ public class ProjectController {
             }
             int userId = userRs.getInt("id");
 
-            // Get project ID
             projectStmt.setString(1, projectName);
             ResultSet projectRs = projectStmt.executeQuery();
             if (!projectRs.next()) {
@@ -102,7 +93,6 @@ public class ProjectController {
             }
             int projectId = projectRs.getInt("id");
 
-            // Delete the link
             deleteStmt.setInt(1, userId);
             deleteStmt.setInt(2, projectId);
             int affectedRows = deleteStmt.executeUpdate();
@@ -115,71 +105,78 @@ public class ProjectController {
         }
     }
 
-    public void editProjectByName() {
-        System.out.print("Enter the name of the project to edit: ");
-        String oldName = scanner.nextLine();
-
-        String selectSql = "SELECT id, name, description FROM project WHERE name = ?";
-        String updateSql = "UPDATE project SET name = ?, description = ? WHERE id = ?";
-
+    public boolean editProject(int projectId, String newName, String newDescription) {
+        String sql = "UPDATE project SET name = ?, description = ? WHERE id = ?";
         try (
-                PreparedStatement selectStmt = DatabaseConnection.getConnection().prepareStatement(selectSql);
-                PreparedStatement updateStmt = DatabaseConnection.getConnection().prepareStatement(updateSql)
+                PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)
         ) {
-            // Get current project
-            selectStmt.setString(1, oldName);
-            ResultSet rs = selectStmt.executeQuery();
+            stmt.setString(1, newName);
+            stmt.setString(2, newDescription);
+            stmt.setInt(3, projectId);
 
-            if (!rs.next()) {
-                System.out.println("Project not found: " + oldName);
-                return;
-            }
+            int rows = stmt.executeUpdate();
+            return rows > 0;
 
-            int projectId = rs.getInt("id");
-            String currentName = rs.getString("name");
-            String currentDescription = rs.getString("description");
-
-            System.out.println("Current Project Name: " + currentName);
-            System.out.println("Current Description: " + currentDescription);
-
-            // Ask for new values
-            System.out.print("Enter new project name (leave blank to keep current): ");
-            String newName = scanner.nextLine();
-            if (newName.isBlank()) newName = currentName;
-
-            System.out.print("Enter new project description (leave blank to keep current): ");
-            String newDescription = scanner.nextLine();
-            if (newDescription.isBlank()) newDescription = currentDescription;
-
-            // Update project
-            updateStmt.setString(1, newName);
-            updateStmt.setString(2, newDescription);
-            updateStmt.setInt(3, projectId);
-
-            int rows = updateStmt.executeUpdate();
-            if (rows > 0) {
-                System.out.println("Project updated successfully.");
-            } else {
-                System.out.println("Failed to update project.");
-            }
         } catch (SQLException e) {
-            System.out.println("Error editing project: " + e.getMessage());
+            System.out.println("Failed to edit project: " + e.getMessage());
+            return false;
         }
     }
+
+    public Project getProjectById(int id) {
+        String sql = "SELECT id, name, description FROM project WHERE id = ?";
+        try (
+                PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)
+        ) {
+            stmt.setInt(1, id);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return new Project(rs.getInt("id"), rs.getString("name"), rs.getString("description"));
+            }
+        } catch (SQLException e) {
+            System.out.println("Failed to get project: " + e.getMessage());
+        }
+        return null;
+    }
+
     public ArrayList<Project> listProjects() {
         String sql = "SELECT id, name, description FROM project";
-        ArrayList<Project> projects = new ArrayList<Project>();
+        return getProjects(sql);
+    }
+
+    public ArrayList<Project> listProjectsWhereScrummaster(int uid) {
+        int scrumMasterRoleId = 3;
+
+        String sql = "SELECT p.id, p.name, p.description " +
+                "FROM project p " +
+                "JOIN User_project up ON p.id = up.project_id " +
+                "WHERE up.user_id = ? AND up.role_id = ?";
+
+        return getProjects(sql, uid, scrumMasterRoleId);
+    }
+
+    private ArrayList<Project> getProjects(String sql, Object... params) {
+        ArrayList<Project> projects = new ArrayList<>();
         try (
-                PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql);
-                ResultSet rs = stmt.executeQuery()
+                Connection conn = DatabaseConnection.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)
         ) {
-            while (rs.next()) {
-                projects.add(new Project(rs.getInt("id"), rs.getString("name"), rs.getString("description")));
+            for (int i = 0; i < params.length; i++) {
+                stmt.setObject(i + 1, params[i]);
             }
-            return projects;
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    projects.add(new Project(
+                            rs.getInt("id"),
+                            rs.getString("name"),
+                            rs.getString("description")
+                    ));
+                }
+            }
         } catch (SQLException e) {
             System.out.println("Failed to list projects: " + e.getMessage());
-            return projects;
         }
+        return projects;
     }
 }
