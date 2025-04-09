@@ -10,11 +10,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Scanner;
 
 public class ProjectController {
     private Project currentProject = null;
-    Scanner scanner = new Scanner(System.in);
 
     public int getCurrentProjectId() { return currentProject.getId();}
 
@@ -42,9 +40,6 @@ public class ProjectController {
                 return new ProjectCreationResult(0, null);
             }
         }
-    }
-    public Project getCurrentProject() {
-        return currentProject;
     }
 
     public String getCurrentProjectName() {
@@ -112,7 +107,7 @@ public class ProjectController {
 
     public ArrayList<Project> listProjects() {
         String sql = "SELECT id, name, description FROM project";
-        ArrayList<Project> projects = new ArrayList<Project>();
+        ArrayList<Project> projects = new ArrayList<>();
         try (
                 PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql);
                 ResultSet rs = stmt.executeQuery()
