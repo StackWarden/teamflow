@@ -105,7 +105,7 @@ public class ProjectScreen implements Screen {
         System.out.println("Select a user to add to the project:");
         for (int i = 0; i < allUsers.size(); i++) {
             var user = allUsers.get(i);
-            System.out.println(i + 1 + user.getUsername());
+            System.out.println(i + 1 + " " + user.getUsername());
         }
 
         System.out.print("Enter the number of the user to add: ");
