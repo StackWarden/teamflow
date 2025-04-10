@@ -3,9 +3,12 @@ package org.teamflow.screens;
 import org.teamflow.ScreenManager;
 import org.teamflow.controllers.ProjectController;
 import org.teamflow.controllers.UserController;
+import org.teamflow.enums.ScreenType;
 import org.teamflow.interfaces.Screen;
+import org.teamflow.models.Project;
 import org.teamflow.services.UserProjectRoleService;
 
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class ProjectScreen implements Screen {
@@ -28,23 +31,33 @@ public class ProjectScreen implements Screen {
 
         while (running) {
             printMenu();
-
             String input = scanner.nextLine();
 
             switch (input) {
-                case "1" -> handleOption1();
-                case "2" -> handleOption2();
-                case "8" -> addDeveloperToProject();
-                case "9" -> {
-                    if(deleteProject()) {
+                case "1" -> goToEpicScreen();
+                case "2" -> goToSprintScreen();
+                case "3" -> goToChatroomScreen();
+                case "4" -> {
+                    if (UserProjectRoleService.isScrumMaster(userController.getUserId(), projectController.getCurrentProjectId())) {
+                        goToMemberScreen();
+                    } else {
+                        System.out.println("Only Scrum Masters can manage members.");
+                    }
+                }
+                case "5" -> editProjectUI();
+                case "6" -> {
+                    if (deleteProject()) {
                         running = false;
                     }
                 }
                 case "0" -> {
-                    System.out.println("Returning to previous menu...");
+                    System.out.println("Returning to dashboard...");
                     running = false;
                 }
-                default -> System.out.println("Invalid input. Please try again.");
+                default -> {
+                    System.out.println();
+                    System.out.println("Invalid input. Please try again.");
+                }
             }
         }
     }
@@ -52,14 +65,34 @@ public class ProjectScreen implements Screen {
     protected void printMenu() {
         boolean isScrumMaster = UserProjectRoleService.isScrumMaster(userController.getUserId(), projectController.getCurrentProjectId());
 
-        System.out.println("===== " + projectController.getProjectNameAndUserRole(userController.getLoggedUser()) + " =====");
-        System.out.println("1. Option 1");
-        System.out.println("2. Option 2");
-        if ( isScrumMaster ) {
-            System.out.println("8. Add developer to project");
-            System.out.println("9. Delete Project");
+        System.out.println("\n===== " + projectController.getProjectNameAndUserRole(userController.getLoggedUser()) + " =====");
+        System.out.println("1. View Epics");
+        System.out.println("2. View Sprints");
+        System.out.println("3. Open Chatrooms");
+        if (isScrumMaster) {
+            System.out.println("4. Manage Project Members");
+            System.out.println("5. Edit Project Name");
+            System.out.println("6. Delete Project");
         }
-        System.out.println("0. Back");
+        System.out.println("0. Back to Dashboard");
+    }
+
+    protected void goToEpicScreen() {
+         screenManager.switchTo(ScreenType.EPIC);
+    }
+
+    protected void goToSprintScreen() {
+        System.out.println("TODO: Open SprintScreen");
+        // screenManager.switchTo(ScreenType.SPRINT);
+    }
+
+    protected void goToChatroomScreen() {
+        System.out.println("TODO: Open ChatroomScreen");
+        // screenManager.switchTo(ScreenType.CHATROOM);
+    }
+
+    protected void goToMemberScreen() {
+         screenManager.switchTo(ScreenType.PROJECT_MEMBERS);
     }
 
     protected boolean deleteProject() {
@@ -89,56 +122,50 @@ public class ProjectScreen implements Screen {
         return false;
     }
 
-    protected void addDeveloperToProject() {
-        if (!UserProjectRoleService.isScrumMaster(userController.getUserId(), projectController.getCurrentProjectId())) {
-            System.out.println("Only Scrum Masters can add developers to the project.");
-            return;
-        }
+    public void editProjectUI() {
+        System.out.println("Select the Project ID to edit:");
+        displayScrumMasterProjects();
 
-        var allUsers = userController.getAllUsers();
-
-        if (allUsers.isEmpty()) {
-            System.out.println("No users found.");
-            return;
-        }
-
-        System.out.println("Select a user to add to the project:");
-        for (int i = 0; i < allUsers.size(); i++) {
-            var user = allUsers.get(i);
-            System.out.println(i + 1 + " " + user.getUsername());
-        }
-
-        System.out.print("Enter the number of the user to add: ");
-        String input = scanner.nextLine();
-
+        System.out.print("Enter Project ID: ");
+        int projectId;
         try {
-            int selectedIndex = Integer.parseInt(input) - 1;
-
-            if (selectedIndex < 0 || selectedIndex >= allUsers.size()) {
-                System.out.println("Invalid selection.");
-                return;
-            }
-
-            var selectedUser = allUsers.get(selectedIndex);
-            boolean success = userController.addUserToProject(selectedUser.getId(), projectController.getCurrentProjectId());
-
-            if (success) {
-                System.out.println("User added to project successfully.");
-            } else {
-                System.out.println("Failed to add user to project. They might already be a member.");
-            }
-
+            projectId = Integer.parseInt(scanner.nextLine());
         } catch (NumberFormatException e) {
-            System.out.println("Invalid input. Please enter a valid number.");
+            System.out.println("Invalid project ID.");
+            return;
+        }
+
+        Project projectToEdit = projectController.getProjectById(projectId);
+
+        if (projectToEdit == null) {
+            System.out.println("Project not found or you're not the Scrum Master of this project.");
+            return;
+        }
+
+        System.out.println("Editing Project: " + projectToEdit.getName());
+        System.out.println("Current Description: " + projectToEdit.getDescription());
+
+        System.out.print("Enter new project name (leave blank to keep current): ");
+        String newName = scanner.nextLine();
+        if (newName.isBlank()) newName = projectToEdit.getName();
+
+        System.out.print("Enter new project description (leave blank to keep current): ");
+        String newDescription = scanner.nextLine();
+        if (newDescription.isBlank()) newDescription = projectToEdit.getDescription();
+
+        boolean success = projectController.editProject(projectId, newName, newDescription);
+        if (success) {
+            System.out.println("Project updated successfully!");
+        } else {
+            System.out.println("Failed to update the project.");
         }
     }
-
-
-    protected void handleOption1() {
-        System.out.println("Handling option 1...");
-    }
-
-    protected void handleOption2() {
-        System.out.println("Handling option 2...");
+    public void displayScrumMasterProjects() {
+        int uid = userController.getUserId();
+        ArrayList<Project> scrumMasterProjects = projectController.listProjectsWhereScrummaster(uid);
+        System.out.println("Your Scrum Master Projects:");
+        for (Project project : scrumMasterProjects) {
+            System.out.println(project.getId() + ": " + project.getName() + " - " + project.getDescription());
+        }
     }
 }
