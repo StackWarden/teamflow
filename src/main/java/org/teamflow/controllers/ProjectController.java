@@ -1,15 +1,46 @@
 package org.teamflow.controllers;
 
 import org.teamflow.database.DatabaseConnection;
-import org.teamflow.models.Project;
-import org.teamflow.models.ProjectCreationResult;
-import org.teamflow.models.User;
+import org.teamflow.models.*;
 import org.teamflow.services.UserProjectRoleService;
 import java.sql.*;
 import java.util.ArrayList;
 
 public class ProjectController {
     private Project currentProject = null;
+    private Epic currentEpic = null;
+    private UserStory currentUserStory = null;
+    private Task currentTask = null;
+
+    public void setCurrentTask(Task currentTask) {
+        this.currentTask = currentTask;
+    }
+    public Task getCurrentTask() {
+        return currentTask;
+    }
+
+    public void setCurrentEpic(Epic epic) {
+        this.currentEpic = epic;
+    }
+
+    public UserStory getCurrentUserStory() {
+        return currentUserStory;
+    }
+
+    public void setCurrentUserStory(UserStory userStory) {
+        this.currentUserStory = userStory;
+    }
+    public Epic getCurrentEpic() {
+        return currentEpic;
+    }
+    public boolean setCurrentProject(int currentProjectId) {
+        Project project = getProjectById(currentProjectId);
+        if(project != null) {
+            currentProject = project;
+            return true;
+        }
+        return false;
+    }
 
     public int getCurrentProjectId() { return currentProject.getId();}
 
@@ -150,6 +181,11 @@ public class ProjectController {
                 "WHERE up.user_id = ? AND up.role_id = ?";
 
         return getProjects(sql, uid, scrumMasterRoleId);
+    }
+
+    public ArrayList<User> getProjectMembers(int projectId) {
+        System.out.println("[TODO] getProjectMembers: fetch all users for projectId = " + projectId);
+        return new ArrayList<>();
     }
 
     private ArrayList<Project> getProjects(String sql, Object... params) {

@@ -1,6 +1,7 @@
 package org.teamflow.controllers;
 
 import org.teamflow.database.DatabaseConnection;
+import org.teamflow.models.Project;
 import org.teamflow.models.User;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -29,6 +30,10 @@ public class UserController {
 
     public void logout() {
         isLoggedIn = false;
+    }
+
+    public List<Project> getProjects() {
+        return Project.getProjectsByUserId(getUserId());
     }
 
     public int loginUser(String username) {

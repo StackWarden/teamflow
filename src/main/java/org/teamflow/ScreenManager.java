@@ -1,12 +1,12 @@
 package org.teamflow;
 
+import org.teamflow.controllers.ChatController;
 import org.teamflow.controllers.ProjectController;
 import org.teamflow.controllers.UserController;
 import org.teamflow.enums.ScreenType;
 import org.teamflow.interfaces.Screen;
-import org.teamflow.screens.DashboardScreen;
-import org.teamflow.screens.LoginScreen;
-import org.teamflow.screens.ProjectScreen;
+import org.teamflow.screens.*;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -20,6 +20,7 @@ public class ScreenManager {
     private final Scanner scanner = new Scanner(System.in);
     private final UserController userController = new UserController();
     private final ProjectController projectController = new ProjectController();
+    private final ChatController chatController = new ChatController();
 
     public ScreenManager() {
         // Registreer alle Schermen die je aanmaakt (en wilt gebruiken) hieronder. Zie basetemplate voor meer info
@@ -28,6 +29,11 @@ public class ScreenManager {
         register(ScreenType.LOGIN, new LoginScreen(scanner, userController, this));
         register(ScreenType.DASHBOARD, new DashboardScreen(scanner, projectController, userController, this));
         register(ScreenType.PROJECT, new ProjectScreen(scanner, projectController, userController, this));
+        register(ScreenType.PROJECT_MEMBERS, new ProjectMembersScreen(scanner, projectController, userController, this));
+        register(ScreenType.EPIC, new EpicScreen(scanner, projectController, userController, this));
+        register(ScreenType.USER_STORY, new UserStoryScreen(scanner, projectController, userController, this));
+        register(ScreenType.TASK, new TaskScreen(scanner, projectController, userController, this));
+        register(ScreenType.CHATROOM, new ChatroomScreen(scanner, chatController, userController, this));
     }
 
     private void register(ScreenType type, Screen screen) {

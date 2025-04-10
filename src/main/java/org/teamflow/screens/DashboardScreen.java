@@ -9,6 +9,7 @@ import org.teamflow.models.Project;
 import org.teamflow.models.ProjectCreationResult;
 import org.teamflow.services.UserProjectRoleService;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class DashboardScreen implements Screen {
@@ -34,8 +35,6 @@ public class DashboardScreen implements Screen {
             System.out.println("3. View joined projects");
             System.out.println("4. Logout");
             System.out.println("5. Exit");
-            System.out.println("8. Edit a project name and description");
-            System.out.println("9. Remove a user from a project");
             System.out.println("0. Delete account");
 
             String choice = scanner.nextLine();
@@ -48,7 +47,7 @@ public class DashboardScreen implements Screen {
                 }
                 case "1" -> createProject();
                 case "2" -> joinProject();
-                case "3" -> System.out.println("TODO: list projects");
+                case "3" -> openProject();
                 case "4" -> {
                     userController.logout();
                     screenManager.switchTo(ScreenType.LOGIN);
@@ -58,8 +57,6 @@ public class DashboardScreen implements Screen {
                     System.out.println("Goodbye!");
                     System.exit(0);
                 }
-                case "8" -> editProjectUI();
-                case "9" -> removeUserFromProjectUI();
                 default -> System.out.println();
             }
         }
@@ -86,30 +83,9 @@ public class DashboardScreen implements Screen {
         }
     }
 
-    private void removeUserFromProjectUI() {
-        System.out.print("Enter username to remove from project: ");
-        String username = scanner.nextLine();
-
-        System.out.print("Enter project name: ");
-        String projectName = scanner.nextLine();
-
-        boolean success = projectController.removeUserFromProjectByName(username, projectName);
-
-        if (success) {
-            System.out.println("User removed from project.");
-        } else {
-            System.out.println("Could not remove user from project.");
-        }
-    }
-
     public void joinProject() {
         System.out.println("Which project to join?");
         ArrayList<Project> projects = displayAllProjects();
-        for (Project project : projects) {
-            if (!UserProjectRoleService.isMemberOfProject(userController.getUserId(), project.getId())) {
-                System.out.println(project.getId() + ". " + project.getName());
-            }
-        }
 
         int choice = scanner.nextInt();
 
@@ -131,52 +107,16 @@ public class DashboardScreen implements Screen {
         return allProjects;
     }
 
-    public void displayScrumMasterProjects() {
-        int uid = userController.getUserId();
-        ArrayList<Project> scrumMasterProjects = projectController.listProjectsWhereScrummaster(uid);
-        System.out.println("Your Scrum Master Projects:");
-        for (Project project : scrumMasterProjects) {
+    public void openProject() {
+        for (Project project : userController.getProjects()) {
             System.out.println(project.getId() + ": " + project.getName() + " - " + project.getDescription());
         }
-    }
 
-    public void editProjectUI() {
-        System.out.println("Select the Project ID to edit:");
-        displayScrumMasterProjects();
+        System.out.println("Which project to open?");
 
-        System.out.print("Enter Project ID: ");
-        int projectId;
-        try {
-            projectId = Integer.parseInt(scanner.nextLine());
-        } catch (NumberFormatException e) {
-            System.out.println("Invalid project ID.");
-            return;
-        }
-
-        Project projectToEdit = projectController.getProjectById(projectId);
-
-        if (projectToEdit == null) {
-            System.out.println("Project not found or you're not the Scrum Master of this project.");
-            return;
-        }
-
-        System.out.println("Editing Project: " + projectToEdit.getName());
-        System.out.println("Current Description: " + projectToEdit.getDescription());
-
-        System.out.print("Enter new project name (leave blank to keep current): ");
-        String newName = scanner.nextLine();
-        if (newName.isBlank()) newName = projectToEdit.getName();
-
-        System.out.print("Enter new project description (leave blank to keep current): ");
-        String newDescription = scanner.nextLine();
-        if (newDescription.isBlank()) newDescription = projectToEdit.getDescription();
-
-        boolean success = projectController.editProject(projectId, newName, newDescription);
-        if (success) {
-            System.out.println("Project updated successfully!");
-        } else {
-            System.out.println("Failed to update the project.");
+        int projectId = scanner.nextInt();
+        if (projectController.setCurrentProject(projectId)) {
+            screenManager.switchTo(ScreenType.PROJECT);
         }
     }
-
 }
