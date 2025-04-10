@@ -119,7 +119,7 @@ public class EpicScreen implements Screen {
         }
 
         assert epic != null;
-        projectController.deleteEpic(epic.getId());
+        projectController.deleteById("Epic", epic.getId());
     }
 
     private boolean isScrumMaster() {

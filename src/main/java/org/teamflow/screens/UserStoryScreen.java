@@ -161,7 +161,7 @@ public class UserStoryScreen implements Screen {
         }
 
         assert story != null;
-        projectController.deleteUserStory(story.getId());
+        projectController.deleteById("UserStory", story.getId());
     }
 
     private boolean isScrumMaster() {

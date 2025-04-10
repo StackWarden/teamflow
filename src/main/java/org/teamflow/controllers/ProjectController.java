@@ -5,6 +5,7 @@ import org.teamflow.models.*;
 import org.teamflow.services.UserProjectRoleService;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Set;
 
 public class ProjectController {
     private Project currentProject = null;
@@ -241,39 +242,20 @@ public class ProjectController {
         }
     }
 
-    public void deleteEpic(int epicId) {
-        String sql = "DELETE FROM Epic WHERE id = ?";
-        try (
-                PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)
-        ) {
-            stmt.setInt(1, epicId);
-            stmt.executeUpdate();
-        } catch (SQLException e) {
-            System.out.println("Failed to delete epic: " + e.getMessage());
-        }
-    }
+    public void deleteById(String tableName, int id) {
+        String sql = "DELETE FROM " + tableName + " WHERE id = ?";
 
-    public void deleteUserStory(int storyId) {
-        String sql = "DELETE FROM UserStory WHERE id = ?";
-        try (
-                PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)
-        ) {
-            stmt.setInt(1, storyId);
-            stmt.executeUpdate();
-        } catch (SQLException e) {
-            System.out.println("Failed to delete user story: " + e.getMessage());
+        if (!Set.of("Epic", "UserStory", "Task").contains(tableName)) {
+            throw new IllegalArgumentException("Invalid table name: " + tableName);
         }
-    }
 
-    public void deleteTask(int taskId) {
-        String sql = "DELETE FROM Task WHERE id = ?";
         try (
                 PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)
         ) {
-            stmt.setInt(1, taskId);
+            stmt.setInt(1, id);
             stmt.executeUpdate();
         } catch (SQLException e) {
-            System.out.println("Failed to delete task: " + e.getMessage());
+            System.out.println("Failed to delete from " + tableName + ": " + e.getMessage());
         }
     }
 

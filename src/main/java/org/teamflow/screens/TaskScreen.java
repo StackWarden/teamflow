@@ -191,7 +191,7 @@ public class TaskScreen implements Screen {
         }
 
         assert task != null;
-        projectController.deleteTask(task.getId());
+        projectController.deleteById("Task", task.getId());
     }
 
     private boolean isScrumMaster() {
