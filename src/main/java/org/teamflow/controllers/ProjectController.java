@@ -5,6 +5,7 @@ import org.teamflow.models.*;
 import org.teamflow.services.UserProjectRoleService;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.List;
 
 public class ProjectController {
     private Project currentProject = null;
@@ -42,6 +43,9 @@ public class ProjectController {
         return false;
     }
 
+    public Project getCurrentProject() {
+        return currentProject;
+    }
     public int getCurrentProjectId() { return currentProject.getId();}
 
     public ProjectCreationResult createProject(String name, String description) {
@@ -92,45 +96,8 @@ public class ProjectController {
         }
     }
 
-    public boolean removeUserFromProjectByName(String username, String projectName) {
-        String getUserIdSql = "SELECT id FROM user WHERE username = ?";
-        String getProjectIdSql = "SELECT id FROM project WHERE name = ?";
-        String deleteLinkSql = "DELETE FROM User_Project WHERE user_id = ? AND project_id = ?";
-
-        try (
-                PreparedStatement userStmt = DatabaseConnection.getConnection().prepareStatement(getUserIdSql);
-                PreparedStatement projectStmt = DatabaseConnection.getConnection().prepareStatement(getProjectIdSql);
-                PreparedStatement deleteStmt = DatabaseConnection.getConnection().prepareStatement(deleteLinkSql)
-        ) {
-            System.out.println("Enter username: ");
-            System.out.println("Enter project name: ");
-
-            userStmt.setString(1, username);
-            ResultSet userRs = userStmt.executeQuery();
-            if (!userRs.next()) {
-                System.out.println("User not found: " + username);
-                return false;
-            }
-            int userId = userRs.getInt("id");
-
-            projectStmt.setString(1, projectName);
-            ResultSet projectRs = projectStmt.executeQuery();
-            if (!projectRs.next()) {
-                System.out.println("Project not found: " + projectName);
-                return false;
-            }
-            int projectId = projectRs.getInt("id");
-
-            deleteStmt.setInt(1, userId);
-            deleteStmt.setInt(2, projectId);
-            int affectedRows = deleteStmt.executeUpdate();
-
-            return affectedRows > 0;
-
-        } catch (SQLException e) {
-            System.out.println("Failed to remove user from project: " + e.getMessage());
-            return false;
-        }
+    public void removeUserFromProject(int userId) {
+        currentProject.deleteUserFromProject(userId);
     }
 
     public boolean editProject(int projectId, String newName, String newDescription) {
@@ -183,9 +150,21 @@ public class ProjectController {
         return getProjects(sql, uid, scrumMasterRoleId);
     }
 
-    public ArrayList<User> getProjectMembers(int projectId) {
-        System.out.println("[TODO] getProjectMembers: fetch all users for projectId = " + projectId);
-        return new ArrayList<>();
+    public List<User> getProjectMembers(int projectId) {
+        return currentProject.getMembers();
+    }
+
+    public List<Role> getAllRoles() {
+        return Role.getAllRoles();
+    }
+
+    public void changeUserRoleInProject(int userId, Role role) {
+        Project current = getCurrentProject();
+        if (current == null) {
+            System.out.println("No project selected.");
+            return;
+        }
+        current.setUserRole(userId, role);
     }
 
     private ArrayList<Project> getProjects(String sql, Object... params) {
