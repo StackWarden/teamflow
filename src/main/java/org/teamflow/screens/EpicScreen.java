@@ -5,6 +5,7 @@ import org.teamflow.controllers.ProjectController;
 import org.teamflow.controllers.UserController;
 import org.teamflow.enums.ScreenType;
 import org.teamflow.interfaces.Screen;
+import org.teamflow.services.UserProjectRoleService;
 
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -37,7 +38,13 @@ public class EpicScreen implements Screen {
                 case "3" -> selectEpic();
                 case "4" -> createUserStory();
                 case "5" -> editUserStory();
-                case "6" -> deleteUserStory();
+                case "6" -> {
+                    if (UserProjectRoleService.isScrumMaster(userController.getUserId(), projectController.getCurrentProjectId())) {
+                        deleteUserStory();
+                    } else {
+                        System.out.println("Only Scrum Masters can delete user stories.");
+                    }
+                }
                 case "0" -> {
                     System.out.println("Returning to project screen...");
                     running = false;
