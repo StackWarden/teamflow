@@ -6,6 +6,7 @@ import org.teamflow.controllers.UserController;
 import org.teamflow.enums.ScreenType;
 import org.teamflow.interfaces.Screen;
 
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class EpicScreen implements Screen {
@@ -136,10 +137,23 @@ public class EpicScreen implements Screen {
     }
 
     private void editUserStory() {
+        System.out.println("Which story do you want to edit?");
+
+        listUserStories();
+        System.out.print("Enter number of user story: ");
+        int storyId = scanner.nextInt();
+
         String description;
         System.out.print("Enter description for your user story: ");
         description = scanner.nextLine();
 
-        projectController.editUserStory(description);
+        projectController.editUserStory(description, storyId);
+    }
+
+    public void listUserStories() {
+        ArrayList<String> stories = projectController.listUserStories();
+        for (String story : stories) {
+            System.out.println(story);
+        }
     }
 }
