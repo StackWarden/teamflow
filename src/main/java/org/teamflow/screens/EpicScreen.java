@@ -6,7 +6,6 @@ import org.teamflow.controllers.UserController;
 import org.teamflow.enums.ScreenType;
 import org.teamflow.interfaces.Screen;
 import org.teamflow.models.Epic;
-import org.teamflow.models.Task;
 
 import java.util.Scanner;
 
