@@ -249,5 +249,33 @@ public class ProjectController {
         return userStories;
     }
 
+    public void createEpic (String title) {
+        String sql = "INSERT INTO Epic (title, project_id) VALUES (?,?)";
+        try (
+                PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)
+        ) {
+            stmt.setString(1, title);
+            stmt.setInt(2, currentProject.getId());
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println("Failed to create epic: " + e.getMessage());
+        }
+    }
 
+    public ArrayList<String> listEpics() {
+        ArrayList<String> epics = new ArrayList<>();
+        String sql = "SELECT id, title FROM Epic WHERE project_id = ?";
+        try (
+                PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)
+        ) {
+            stmt.setInt(1, currentProject.getId());
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                epics.add(rs.getInt("id") + ": " + rs.getString("title"));
+            }
+        } catch (SQLException e) {
+            System.out.println("Failed to list epics: " + e.getMessage());
+        }
+        return epics;
+    }
 }
