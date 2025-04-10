@@ -6,6 +6,7 @@ import org.teamflow.services.UserProjectRoleService;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class ProjectController {
     private Project currentProject = null;
@@ -220,15 +221,20 @@ public class ProjectController {
         }
     }
 
-    public void deleteUserStory(int storyId) {
-        String sql = "DELETE FROM UserStory WHERE id = ?";
+    public void deleteById(String tableName, int id) {
+        String sql = "DELETE FROM " + tableName + " WHERE id = ?";
+
+        if (!Set.of("Epic", "UserStory", "Task").contains(tableName)) {
+            throw new IllegalArgumentException("Invalid table name: " + tableName);
+        }
+
         try (
                 PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)
         ) {
-            stmt.setInt(1, storyId);
+            stmt.setInt(1, id);
             stmt.executeUpdate();
         } catch (SQLException e) {
-            System.out.println("Failed to delete user story: " + e.getMessage());
+            System.out.println("Failed to delete from " + tableName + ": " + e.getMessage());
         }
     }
 
