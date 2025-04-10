@@ -87,8 +87,8 @@ public class TaskScreen implements Screen {
                 case "3" -> listChatrooms();
                 case "4" -> createChatroom();
                 case "5" -> {
-                    if (deleteTask()) {
-                        running = false;
+                    if (UserController.isScrumMaster()) {
+                        deleteTask();
                     }
                 }
                 case "0" -> running = false;
@@ -105,6 +105,7 @@ public class TaskScreen implements Screen {
         System.out.println("2. Assign user");
         System.out.println("3. View chatrooms");
         System.out.println("4. Create chatroom");
+        System.out.println("5. Delete task");
 
         boolean isScrumMaster = UserProjectRoleService.isScrumMaster(
                 userController.getUserId(),
@@ -178,33 +179,18 @@ public class TaskScreen implements Screen {
         // chatroomController.createChatroom(name, taskId, "task");
     }
 
-    private boolean deleteTask() {
-        boolean isScrumMaster = UserProjectRoleService.isScrumMaster(
-                userController.getUserId(),
-                projectController.getCurrentProjectId()
-        );
-
-        if (!isScrumMaster) {
+    private void deleteTask() {
+        if (!UserController.isScrumMaster()) {
             System.out.println("Only Scrum Masters can delete tasks.");
-            return false;
         }
 
         Task task = projectController.getCurrentTask();
+
         if (task == null) {
             System.out.println("No task selected.");
-            return false;
         }
 
-        System.out.print("Type EXACT task title to confirm: ");
-        String confirm = scanner.nextLine();
-
-        if (confirm.equals(task.getTitle())) {
-            System.out.println("[TODO] Delete task from database");
-            // projectController.deleteTask(task.getId());
-            return true;
-        }
-
-        System.out.println("Confirmation failed. Task was not deleted.");
-        return false;
+        assert task != null;
+        projectController.deleteById("Task", task.getId());
     }
 }

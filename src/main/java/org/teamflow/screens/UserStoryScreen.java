@@ -90,7 +90,7 @@ public class UserStoryScreen implements Screen {
                 case "3" -> createChatroom();
                 case "4" -> editUserStory();
                 case "5" -> {
-                    if (isScrumMaster()) {
+                    if (UserController.isScrumMaster()) {
                         deleteUserStory();
                     }
                 }
@@ -150,7 +150,7 @@ public class UserStoryScreen implements Screen {
     }
 
     private void deleteUserStory() {
-        if (!isScrumMaster()) {
+        if (!UserController.isScrumMaster()) {
             System.out.println("Only Scrum Masters can delete stories.");
         }
 
@@ -161,10 +161,8 @@ public class UserStoryScreen implements Screen {
         }
 
         assert story != null;
-        projectController.deleteUserStory(story.getId());
+        projectController.deleteById("UserStory", story.getId());
     }
 
-    private boolean isScrumMaster() {
-        return org.teamflow.services.UserProjectRoleService.isScrumMaster(userController.getUserId(), projectController.getCurrentProjectId());
-    }
+
 }
