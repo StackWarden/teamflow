@@ -42,7 +42,7 @@ public class ProjectMembersScreen implements Screen {
                     System.out.println("Returning to project screen...");
                     running = false;
                 }
-                default -> System.out.println("Invalid choice. Try again.");
+                default -> System.out.println();
             }
         }
     }
@@ -84,7 +84,7 @@ public class ProjectMembersScreen implements Screen {
         System.out.println("Select a user to add to the project:");
         for (int i = 0; i < allUsers.size(); i++) {
             var user = allUsers.get(i);
-            System.out.println(i + 1 + " " + user.getUsername());
+            System.out.println((i + 1) + ". " + user.getUsername() + " (ID: " + user.getId() + ")");
         }
 
         System.out.print("Enter the number of the user to add: ");
@@ -99,12 +99,25 @@ public class ProjectMembersScreen implements Screen {
             }
 
             var selectedUser = allUsers.get(selectedIndex);
-            boolean success = userController.addUserToProject(selectedUser.getId(), projectController.getCurrentProjectId());
+            var members = projectController.getCurrentProject().getMembers();
+
+            boolean alreadyInProject = members.stream()
+                    .anyMatch(user -> user.getId() == selectedUser.getId());
+
+            if (alreadyInProject) {
+                System.out.println("User is already in project.");
+                return;
+            }
+
+            boolean success = userController.addUserToProject(
+                    selectedUser.getId(),
+                    projectController.getCurrentProjectId()
+            );
 
             if (success) {
                 System.out.println("User added to project successfully.");
             } else {
-                System.out.println("Failed to add user to project. They might already be a member.");
+                System.out.println("Failed to add user to project.");
             }
 
         } catch (NumberFormatException e) {
@@ -115,31 +128,31 @@ public class ProjectMembersScreen implements Screen {
     private void changeUserRole() {
         if (!isScrumMaster()) return;
 
-        List<User> members = projectController.getCurrentProject().getMembers();
-        if (members.isEmpty()) {
-            System.out.println("No project members found.");
-            return;
-        }
+        // Gebruik bestaande methode om leden te tonen
+        listMembers();
 
-        System.out.println("Select a user to update their role:");
-        for (int i = 0; i < members.size(); i++) {
-            System.out.println((i + 1) + ". " + members.get(i).getUsername());
-        }
-
-        int userIndex;
+        System.out.print("Enter the user ID you want to update: ");
+        int userId;
         try {
-            userIndex = Integer.parseInt(scanner.nextLine()) - 1;
-            if (userIndex < 0 || userIndex >= members.size()) {
-                System.out.println("Invalid selection.");
-                return;
-            }
+            userId = Integer.parseInt(scanner.nextLine());
         } catch (NumberFormatException e) {
-            System.out.println("Please enter a valid number.");
+            System.out.println("Invalid user ID.");
             return;
         }
 
-        User selectedUser = members.get(userIndex);
+        User selectedUser = userController.getUserById(userId);
+        if (selectedUser == null) {
+            System.out.println("User not found.");
+            return;
+        }
 
+        if (selectedUser.getId() == userController.getLoggedUser().getId())
+        {
+            System.out.println("You can not change your own role.");
+            return;
+        }
+
+        // Toon alle rollen
         List<Role> roles = projectController.getAllRoles();
         System.out.println("Select a new role:");
         for (int i = 0; i < roles.size(); i++) {
@@ -159,15 +172,29 @@ public class ProjectMembersScreen implements Screen {
         }
 
         Role selectedRole = roles.get(roleIndex);
-        projectController.changeUserRoleInProject(selectedUser.getId(), selectedRole);
+        projectController.changeUserRoleInProject(userId, selectedRole);
+        System.out.println("Role updated for user " + selectedUser.getUsername());
     }
 
     private void removeMember() {
         if (!isScrumMaster()) return;
+
         listMembers();
 
         System.out.print("Which user do you want to remove from the project? ");
-        int userId = scanner.nextInt();
+
+        int userId;
+        try {
+            userId = Integer.parseInt(scanner.nextLine());
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid input. Please enter a valid user ID.");
+            return;
+        }
+
+        if (userId == userController.getLoggedUser().getId()) {
+            System.out.println("You cannot remove yourself.");
+            return;
+        }
 
         projectController.removeUserFromProject(userId);
     }

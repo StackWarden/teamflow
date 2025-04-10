@@ -100,47 +100,6 @@ public class ProjectController {
         currentProject.deleteUserFromProject(userId);
     }
 
-    public boolean removeUserFromProjectByName(String username, String projectName) {
-        String getUserIdSql = "SELECT id FROM user WHERE username = ?";
-        String getProjectIdSql = "SELECT id FROM project WHERE name = ?";
-        String deleteLinkSql = "DELETE FROM User_Project WHERE user_id = ? AND project_id = ?";
-
-        try (
-                PreparedStatement userStmt = DatabaseConnection.getConnection().prepareStatement(getUserIdSql);
-                PreparedStatement projectStmt = DatabaseConnection.getConnection().prepareStatement(getProjectIdSql);
-                PreparedStatement deleteStmt = DatabaseConnection.getConnection().prepareStatement(deleteLinkSql)
-        ) {
-            System.out.println("Enter username: ");
-            System.out.println("Enter project name: ");
-
-            userStmt.setString(1, username);
-            ResultSet userRs = userStmt.executeQuery();
-            if (!userRs.next()) {
-                System.out.println("User not found: " + username);
-                return false;
-            }
-            int userId = userRs.getInt("id");
-
-            projectStmt.setString(1, projectName);
-            ResultSet projectRs = projectStmt.executeQuery();
-            if (!projectRs.next()) {
-                System.out.println("Project not found: " + projectName);
-                return false;
-            }
-            int projectId = projectRs.getInt("id");
-
-            deleteStmt.setInt(1, userId);
-            deleteStmt.setInt(2, projectId);
-            int affectedRows = deleteStmt.executeUpdate();
-
-            return affectedRows > 0;
-
-        } catch (SQLException e) {
-            System.out.println("Failed to remove user from project: " + e.getMessage());
-            return false;
-        }
-    }
-
     public boolean editProject(int projectId, String newName, String newDescription) {
         String sql = "UPDATE project SET name = ?, description = ? WHERE id = ?";
         try (
