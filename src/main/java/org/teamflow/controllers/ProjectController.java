@@ -7,11 +7,9 @@ import org.teamflow.models.User;
 import org.teamflow.services.UserProjectRoleService;
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.Scanner;
 
 public class ProjectController {
     private Project currentProject = null;
-    Scanner scanner = new Scanner(System.in);
 
     public int getCurrentProjectId() { return currentProject.getId();}
 
@@ -173,6 +171,7 @@ public class ProjectController {
                     ));
                 }
             }
+            return projects;
         } catch (SQLException e) {
             System.out.println("Failed to list projects: " + e.getMessage());
         }

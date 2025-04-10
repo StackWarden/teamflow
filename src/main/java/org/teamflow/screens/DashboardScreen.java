@@ -58,12 +58,8 @@ public class DashboardScreen implements Screen {
                     System.out.println("Goodbye!");
                     System.exit(0);
                 }
-                case "8" -> {
-                    editProjectUI();
-                }
-                case "9" -> {
-                    removeUserFromProjectUI();
-                }
+                case "8" -> editProjectUI();
+                case "9" -> removeUserFromProjectUI();
                 default -> System.out.println();
             }
         }

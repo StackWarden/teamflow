@@ -6,6 +6,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UserController {
     private User currentUser = null;
@@ -52,7 +54,7 @@ public class UserController {
 
         try (
                 Connection conn = DatabaseConnection.getConnection();
-                PreparedStatement insertStmt = conn.prepareStatement(insertSQL);
+                PreparedStatement insertStmt = conn.prepareStatement(insertSQL)
         ) {
             insertStmt.setString(1, username);
             insertStmt.executeUpdate();
@@ -101,5 +103,58 @@ public class UserController {
         setLoggedIn(true);
 
         return user;
+    }
+
+    public List<User> getAllUsers() {
+        List<User> users = new ArrayList<>();
+        String sql = "SELECT * FROM user";
+
+        try (
+                Connection conn = DatabaseConnection.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                ResultSet rs = stmt.executeQuery()
+        ) {
+            while (rs.next()) {
+                User user = new User();
+                user.setId(rs.getInt("id"));
+                user.setUsername(rs.getString("username"));
+                users.add(user);
+            }
+        } catch (SQLException e) {
+            System.out.println("Error fetching users: " + e.getMessage());
+        }
+
+        return users;
+    }
+
+    public boolean addUserToProject(int userId, int projectId) {
+        int roleId = 1;
+        String checkSql = "SELECT * FROM user_project WHERE user_id = ? AND project_id = ? AND role_id = ?";
+        String insertSql = "INSERT INTO user_project (user_id, project_id, role_id) VALUES (?, ?, ?)";
+
+        try (
+                Connection conn = DatabaseConnection.getConnection();
+                PreparedStatement checkStmt = conn.prepareStatement(checkSql)
+        ) {
+            checkStmt.setInt(1, userId);
+            checkStmt.setInt(2, projectId);
+            checkStmt.setInt(3, roleId);
+            ResultSet rs = checkStmt.executeQuery();
+
+            if (rs.next()) {
+                return false;
+            }
+
+            try (PreparedStatement insertStmt = conn.prepareStatement(insertSql)) {
+                insertStmt.setInt(1, userId);
+                insertStmt.setInt(2, projectId);
+                insertStmt.setInt(3, roleId);
+                insertStmt.executeUpdate();
+                return true;
+            }
+        } catch (SQLException e) {
+            System.out.println("Failed to add user to project: " + e.getMessage());
+            return false;
+        }
     }
 }
