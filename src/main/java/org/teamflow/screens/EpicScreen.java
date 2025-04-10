@@ -50,9 +50,6 @@ public class EpicScreen implements Screen {
         System.out.println("1. Create new epic");
         System.out.println("2. View epics");
         System.out.println("3. Select epic");
-        System.out.println("4. Create user story");
-        System.out.println("5. Edit user story");
-        System.out.println("6. Delete user story");
         System.out.println("0. Back");
     }
 

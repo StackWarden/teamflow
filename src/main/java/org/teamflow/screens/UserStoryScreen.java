@@ -71,28 +71,6 @@ public class UserStoryScreen implements Screen {
         projectController.createUserStory(description);
     }
 
-    private void editUserStory() {
-        System.out.println("Which story do you want to edit?");
-
-        listUserStories();
-        System.out.print("Enter number of user story: ");
-        int storyId = scanner.nextInt();
-
-        String description;
-        System.out.print("Enter description for your user story: ");
-        description = scanner.nextLine();
-
-        projectController.editUserStory(description, storyId);
-    }
-
-    private void deleteUserStory() {
-        System.out.println("Which story do you want to delete?");
-        listUserStories();
-        System.out.print("Enter number of user story: ");
-        int storyId = scanner.nextInt();
-        projectController.deleteUserStory(storyId);
-    }
-
     public void listUserStories() {
         ArrayList<String> stories = projectController.listUserStories();
         for (String story : stories) {
@@ -118,12 +96,10 @@ public class UserStoryScreen implements Screen {
                 case "1" -> screenManager.switchTo(ScreenType.TASK);
                 case "2" -> listChatrooms();
                 case "3" -> createChatroom();
-                case "4" -> editStory();
+                case "4" -> editUserStory();
                 case "5" -> {
                     if (isScrumMaster()) {
-                        if (deleteStory()) {
-                            running = false;
-                        }
+                        deleteUserStory();
                     }
                 }
                 case "0" -> running = false;
@@ -165,34 +141,35 @@ public class UserStoryScreen implements Screen {
         // chatController.createAndLink(name, storyId, "user_story")
     }
 
-    private void editStory() {
-        System.out.println("[TODO] Edit Story");
+    private void editUserStory() {
+        System.out.println("Which story do you want to edit?");
+
+        listUserStories();
+        System.out.print("Enter number of user story: ");
+        int storyId = scanner.nextInt();
+
+        String description;
+        System.out.print("Enter description for your user story: ");
+        description = scanner.nextLine();
+
+        projectController.editUserStory(description, storyId);
     }
 
-    private boolean deleteStory() {
+    private void deleteUserStory() {
         if (!isScrumMaster()) {
             System.out.println("Only Scrum Masters can delete stories.");
-            return false;
         }
 
         UserStory story = projectController.getCurrentUserStory();
+
         if (story == null) {
             System.out.println("No story selected.");
-            return false;
         }
 
-        System.out.print("Type EXACTLY the story description to confirm deletion: ");
-        String input = scanner.nextLine();
-
-        if (input.equals(story.getDescription())) {
-            System.out.println("[TODO] Delete user story from database: " + story.getId());
-            // projectController.deleteUserStory(story.getId());
-            return true;
-        } else {
-            System.out.println("Confirmation failed. Story was not deleted.");
-            return false;
-        }
+        assert story != null;
+        projectController.deleteUserStory(story.getId());
     }
+
     private boolean isScrumMaster() {
         return org.teamflow.services.UserProjectRoleService.isScrumMaster(userController.getUserId(), projectController.getCurrentProjectId());
     }
