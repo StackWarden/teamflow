@@ -6,6 +6,8 @@ import org.teamflow.enums.ScreenType;
 import org.teamflow.interfaces.Screen;
 import java.util.Scanner;
 
+import static org.teamflow.ScreenManager.clearScreen;
+
 public class LoginScreen implements Screen {
 
     private final Scanner scanner;
@@ -21,6 +23,8 @@ public class LoginScreen implements Screen {
     @Override
     public void show() {
         while (true) {
+            clearScreen();
+
             if (userController.isLoggedIn()) {
                 screenManager.switchTo(ScreenType.DASHBOARD);
                 return;

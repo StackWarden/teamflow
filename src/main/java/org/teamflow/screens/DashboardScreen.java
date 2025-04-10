@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import static org.teamflow.ScreenManager.clearScreen;
+
 public class DashboardScreen implements Screen {
 
     private final Scanner scanner;
@@ -29,6 +31,8 @@ public class DashboardScreen implements Screen {
     @Override
     public void show() {
         while (true) {
+            clearScreen();
+
             System.out.println("===== Dashboard =====");
             System.out.println("1. Create a new project");
             System.out.println("2. Join a project");

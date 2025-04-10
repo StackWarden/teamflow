@@ -19,21 +19,20 @@ public class ChatController {
     }
 
     public List<Chatroom> getAllAccessibleChatrooms(int userId) {
-        // [TODO] Query to get all chatrooms user has access to
-        return new ArrayList<>();
+        return Chatroom.getAccessibleChatroomsForUser(userId);
     }
 
     public List<Message> getMessagesForChatroom(int chatroomId) {
-        // [TODO] Get messages from DB
-        return new ArrayList<>();
+        return currentChatroom.getMessagesForChatroom();
     }
 
-    public void sendMessage(int chatroomId, int userId, String content) {
-        // [TODO] Insert new message into DB
+    public void sendMessage(int userId, String content) {
+        Message message = new Message(currentChatroom.getId(), userId, content);
+        Message.insertMessage(message);
     }
 
-    public Chatroom createChatroom(String name) {
-        // [TODO] Insert new chatroom and return it
-        return new Chatroom(0, name);
+    public Chatroom createChatroom(Chatroom chatroom) {
+        chatroom.createChatroom(chatroom);
+        return chatroom;
     }
 }

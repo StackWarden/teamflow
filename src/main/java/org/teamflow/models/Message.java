@@ -1,5 +1,11 @@
 package org.teamflow.models;
 
+import org.teamflow.database.DatabaseConnection;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 
 public class Message {
@@ -23,8 +29,48 @@ public class Message {
         this.chatroomId = chatroomId;
         this.userId = userId;
         this.content = content;
-        this.timestamp = LocalDateTime.now(); // automatisch nu
+        this.timestamp = LocalDateTime.now();
     }
+
+    public static void insertMessage(Message message) {
+        String insertSQL = "INSERT INTO message (chatroom_id, user_id, content, timestamp) VALUES (?, ?, ?, ?)";
+
+        try (
+                Connection conn = DatabaseConnection.getConnection();
+                PreparedStatement insertStmt = conn.prepareStatement(insertSQL)
+        ) {
+            insertStmt.setInt(1, message.getChatroomId());
+            insertStmt.setInt(2, message.getUserId());
+            insertStmt.setString(3, message.getContent());
+            insertStmt.setString(4, message.getTimestamp().toString());
+            insertStmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println("Failed to save message: " + e.getMessage());
+        }
+    }
+
+    public String getUserTitle() {
+        String selectSQL = "SELECT username FROM user WHERE id = ?";
+
+        try (
+                Connection conn = DatabaseConnection.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(selectSQL)
+        ) {
+            stmt.setInt(1, getUserId());
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("username");
+                }
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Failed to fetch username: " + e.getMessage());
+        }
+
+        return null;
+    }
+
 
     public int getId() {
         return id;

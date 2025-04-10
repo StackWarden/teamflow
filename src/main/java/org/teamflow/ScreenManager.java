@@ -49,6 +49,30 @@ public class ScreenManager {
         }
     }
 
+    public static void clearScreen() {
+        try {
+            String os = System.getProperty("os.name").toLowerCase();
+
+            if (os.contains("windows")) {
+                new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
+            } else {
+                System.out.print("\033[H\033[2J");
+                System.out.flush();
+            }
+        } catch (Exception e) {
+            printBlankLines();
+        }
+
+        printBlankLines();
+    }
+
+
+    private static void printBlankLines() {
+        for (int i = 0; i < 40; i++) {
+            System.out.println();
+        }
+    }
+
     public UserController getUserController() {
         return userController;
     }
