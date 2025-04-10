@@ -63,7 +63,7 @@ public class UserStoryScreen implements Screen {
         projectController.createUserStory(description);
     }
 
-    public void listUserStories() {
+    private void listUserStories() {
         ArrayList<String> stories = projectController.listUserStories();
         for (String story : stories) {
             System.out.println(story);

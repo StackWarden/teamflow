@@ -5,9 +5,7 @@ import org.teamflow.controllers.ProjectController;
 import org.teamflow.controllers.UserController;
 import org.teamflow.enums.ScreenType;
 import org.teamflow.interfaces.Screen;
-import org.teamflow.services.UserProjectRoleService;
 
-import java.util.ArrayList;
 import java.util.Scanner;
 
 public class EpicScreen implements Screen {
