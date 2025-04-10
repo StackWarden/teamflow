@@ -188,7 +188,7 @@ public class TaskScreen implements Screen {
         Task task = projectController.getCurrentTask();
 
         if (task == null) {
-            System.out.println("No story selected.");
+            System.out.println("No task selected.");
         }
 
         assert task != null;

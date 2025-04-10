@@ -241,6 +241,18 @@ public class ProjectController {
         }
     }
 
+    public void deleteEpic(int epicId) {
+        String sql = "DELETE FROM Epic WHERE id = ?";
+        try (
+                PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)
+        ) {
+            stmt.setInt(1, epicId);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println("Failed to delete epic: " + e.getMessage());
+        }
+    }
+
     public void deleteUserStory(int storyId) {
         String sql = "DELETE FROM UserStory WHERE id = ?";
         try (

@@ -5,6 +5,8 @@ import org.teamflow.controllers.ProjectController;
 import org.teamflow.controllers.UserController;
 import org.teamflow.enums.ScreenType;
 import org.teamflow.interfaces.Screen;
+import org.teamflow.models.Epic;
+import org.teamflow.models.Task;
 
 import java.util.Scanner;
 
@@ -69,8 +71,8 @@ public class EpicScreen implements Screen {
                 case "1" -> screenManager.switchTo(ScreenType.USER_STORY);
                 case "2" -> editEpic();
                 case "3" -> {
-                    if (deleteEpic()) {
-                        running = false;
+                    if (isScrumMaster()) {
+                        deleteEpic();
                     }
                 }
                 case "4" -> listEpicChatrooms();
@@ -106,10 +108,23 @@ public class EpicScreen implements Screen {
         // Bijvoorbeeld: wijzig titel, sla opnieuw op
     }
 
-    private boolean deleteEpic() {
-        System.out.println("[TODO] Delete epic logic");
-        // Controleer op bevestiging en roep controller aan
-        return false;
+    private void deleteEpic() {
+        if (!isScrumMaster()) {
+            System.out.println("Only Scrum Masters can delete epics.");
+        }
+
+        Epic epic = projectController.getCurrentEpic();
+
+        if (epic == null) {
+            System.out.println("No epic selected.");
+        }
+
+        assert epic != null;
+        projectController.deleteEpic(epic.getId());
+    }
+
+    private boolean isScrumMaster() {
+        return org.teamflow.services.UserProjectRoleService.isScrumMaster(userController.getUserId(), projectController.getCurrentProjectId());
     }
 
     private void listEpicChatrooms() {
