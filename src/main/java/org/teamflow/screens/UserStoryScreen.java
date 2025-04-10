@@ -6,7 +6,9 @@ import org.teamflow.controllers.UserController;
 import org.teamflow.interfaces.Screen;
 import org.teamflow.models.UserStory;
 import org.teamflow.enums.ScreenType;
+import org.teamflow.services.UserProjectRoleService;
 
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class UserStoryScreen implements Screen {
@@ -35,6 +37,14 @@ public class UserStoryScreen implements Screen {
                 case "1" -> createUserStory();
                 case "2" -> listUserStories();
                 case "3" -> selectUserStory();
+                case "4" -> editUserStory();
+                case "5" -> {
+                    if (UserProjectRoleService.isScrumMaster(userController.getUserId(), projectController.getCurrentProjectId())) {
+                        deleteUserStory();
+                    } else {
+                        System.out.println("Only Scrum Masters can delete user stories.");
+                    }
+                }
                 case "0" -> {
                     System.out.println("Returning to epic screen...");
                     running = false;
@@ -53,16 +63,41 @@ public class UserStoryScreen implements Screen {
     }
 
     private void createUserStory() {
-        System.out.print("Enter description for new user story: ");
-        String description = scanner.nextLine();
-        System.out.println("[TODO] Create user story with description: " + description);
-        // projectController.createUserStory(projectController.getCurrentEpic().getId(), description);
+        String description;
+
+        System.out.print("Enter description for your user story: ");
+        description = scanner.nextLine();
+
+        projectController.createUserStory(description);
     }
 
-    private void listUserStories() {
-        System.out.println("[TODO] List all user stories linked to current epic");
-        // List<UserStory> stories = projectController.getUserStoriesForEpic(epicId);
-        // Print them
+    private void editUserStory() {
+        System.out.println("Which story do you want to edit?");
+
+        listUserStories();
+        System.out.print("Enter number of user story: ");
+        int storyId = scanner.nextInt();
+
+        String description;
+        System.out.print("Enter description for your user story: ");
+        description = scanner.nextLine();
+
+        projectController.editUserStory(description, storyId);
+    }
+
+    private void deleteUserStory() {
+        System.out.println("Which story do you want to delete?");
+        listUserStories();
+        System.out.print("Enter number of user story: ");
+        int storyId = scanner.nextInt();
+        projectController.deleteUserStory(storyId);
+    }
+
+    public void listUserStories() {
+        ArrayList<String> stories = projectController.listUserStories();
+        for (String story : stories) {
+            System.out.println(story);
+        }
     }
 
     private void selectUserStory() {

@@ -36,15 +36,6 @@ public class EpicScreen implements Screen {
                 case "1" -> createEpic();
                 case "2" -> listEpics();
                 case "3" -> selectEpic();
-                case "4" -> createUserStory();
-                case "5" -> editUserStory();
-                case "6" -> {
-                    if (UserProjectRoleService.isScrumMaster(userController.getUserId(), projectController.getCurrentProjectId())) {
-                        deleteUserStory();
-                    } else {
-                        System.out.println("Only Scrum Masters can delete user stories.");
-                    }
-                }
                 case "0" -> {
                     System.out.println("Returning to project screen...");
                     running = false;
@@ -134,43 +125,5 @@ public class EpicScreen implements Screen {
     private void createEpicChatroom() {
         System.out.println("[TODO] Create a new chatroom and link it to this epic");
         // ChatController.createChatroom(...) + koppelen via Epic_Chatroom
-    }
-
-    private void createUserStory() {
-        String description;
-
-        System.out.print("Enter description for your user story: ");
-        description = scanner.nextLine();
-
-        projectController.createUserStory(description);
-    }
-
-    private void editUserStory() {
-        System.out.println("Which story do you want to edit?");
-
-        listUserStories();
-        System.out.print("Enter number of user story: ");
-        int storyId = scanner.nextInt();
-
-        String description;
-        System.out.print("Enter description for your user story: ");
-        description = scanner.nextLine();
-
-        projectController.editUserStory(description, storyId);
-    }
-
-    private void deleteUserStory() {
-        System.out.println("Which story do you want to delete?");
-        listUserStories();
-        System.out.print("Enter number of user story: ");
-        int storyId = scanner.nextInt();
-        projectController.deleteUserStory(storyId);
-    }
-
-    public void listUserStories() {
-        ArrayList<String> stories = projectController.listUserStories();
-        for (String story : stories) {
-            System.out.println(story);
-        }
     }
 }
