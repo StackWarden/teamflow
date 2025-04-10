@@ -37,14 +37,6 @@ public class UserStoryScreen implements Screen {
                 case "1" -> createUserStory();
                 case "2" -> listUserStories();
                 case "3" -> selectUserStory();
-                case "4" -> editUserStory();
-                case "5" -> {
-                    if (UserProjectRoleService.isScrumMaster(userController.getUserId(), projectController.getCurrentProjectId())) {
-                        deleteUserStory();
-                    } else {
-                        System.out.println("Only Scrum Masters can delete user stories.");
-                    }
-                }
                 case "0" -> {
                     System.out.println("Returning to epic screen...");
                     running = false;
@@ -117,6 +109,8 @@ public class UserStoryScreen implements Screen {
         System.out.println("2. View linked chatrooms");
         System.out.println("3. Create chatroom");
         System.out.println("4. Edit story");
+        System.out.println("5. Delete story");
+        System.out.println("0. Back");
 
         boolean isScrumMaster = projectController.getCurrentProjectId() > 0 &&
                 userController.getUserId() > 0 &&
