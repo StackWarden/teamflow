@@ -213,4 +213,17 @@ public class ProjectController {
         }
         return projects;
     }
+
+    public void createUserStory(String descriptionInput) {
+        String sql = "INSERT INTO UserStory (epic_id, description) VALUES (?, ?)";
+        try (
+                PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)
+        ) {
+            stmt.setInt(1, currentEpic.getId());
+            stmt.setString(2, descriptionInput);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println("Failed to create user story: " + e.getMessage());
+        }
+    }
 }

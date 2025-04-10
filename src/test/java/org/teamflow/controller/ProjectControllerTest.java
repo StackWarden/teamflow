@@ -10,9 +10,9 @@ import org.teamflow.database.DatabaseConnection;
 import org.teamflow.models.Project;
 import org.teamflow.models.ProjectCreationResult;
 import org.teamflow.services.UserProjectRoleService;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.Statement;
+
+import java.sql.*;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ProjectControllerTest {
@@ -110,4 +110,32 @@ public class ProjectControllerTest {
             throw new RuntimeException(e);
         }
     }
+
+    @Test
+    public void testCreateAndDeleteUserStory() {
+        String insertSql = "INSERT INTO UserStory (epic_id, description) VALUES (?, ?)";
+        try (
+                Connection conn = DatabaseConnection.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS)
+        ) {
+            stmt.setInt(1, 1);
+            stmt.setString(2, "testdescription");
+            stmt.executeUpdate();
+
+            ResultSet keys = stmt.getGeneratedKeys();
+            if (keys.next()) {
+                int id = keys.getInt(1);
+                String deleteSql = "DELETE FROM UserStory WHERE id = ?";
+                try (PreparedStatement deleteStmt = conn.prepareStatement(deleteSql)) {
+                    deleteStmt.setInt(1, id);
+                    deleteStmt.executeUpdate();
+                    System.out.println("Inserted and deleted UserStory with ID: " + id);
+                }
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Failed: " + e.getMessage());
+        }
+    }
+
 }
