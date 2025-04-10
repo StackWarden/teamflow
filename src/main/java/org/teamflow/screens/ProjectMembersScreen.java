@@ -4,6 +4,7 @@ import org.teamflow.ScreenManager;
 import org.teamflow.controllers.ProjectController;
 import org.teamflow.controllers.UserController;
 import org.teamflow.interfaces.Screen;
+import org.teamflow.models.Role;
 import org.teamflow.models.User;
 import org.teamflow.services.UserProjectRoleService;
 
@@ -17,8 +18,7 @@ public class ProjectMembersScreen implements Screen {
     private final UserController userController;
     private final ProjectController projectController;
 
-    public ProjectMembersScreen(Scanner scanner, ProjectController projectController,
-                                UserController userController,ScreenManager screenManager) {
+    public ProjectMembersScreen(Scanner scanner, ProjectController projectController, UserController userController, ScreenManager screenManager) {
         this.scanner = scanner;
         this.screenManager = screenManager;
         this.userController = userController;
@@ -67,7 +67,7 @@ public class ProjectMembersScreen implements Screen {
         System.out.println("\nProject Members:");
         for (User user : members) {
             String role = UserProjectRoleService.getUserRoleForProject(user.getId(), projectController.getCurrentProjectId());
-            System.out.println("- " + user.getUsername() + " (" + role + ")");
+            System.out.println(user.getId() + " - " + user.getUsername() + " (" + role + ")");
         }
     }
 
@@ -115,25 +115,61 @@ public class ProjectMembersScreen implements Screen {
     private void changeUserRole() {
         if (!isScrumMaster()) return;
 
-        System.out.println("TODO: Change member role logic");
+        List<User> members = projectController.getCurrentProject().getMembers();
+        if (members.isEmpty()) {
+            System.out.println("No project members found.");
+            return;
+        }
+
+        System.out.println("Select a user to update their role:");
+        for (int i = 0; i < members.size(); i++) {
+            System.out.println((i + 1) + ". " + members.get(i).getUsername());
+        }
+
+        int userIndex;
+        try {
+            userIndex = Integer.parseInt(scanner.nextLine()) - 1;
+            if (userIndex < 0 || userIndex >= members.size()) {
+                System.out.println("Invalid selection.");
+                return;
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("Please enter a valid number.");
+            return;
+        }
+
+        User selectedUser = members.get(userIndex);
+
+        List<Role> roles = projectController.getAllRoles();
+        System.out.println("Select a new role:");
+        for (int i = 0; i < roles.size(); i++) {
+            System.out.println((i + 1) + ". " + roles.get(i).getRoleName());
+        }
+
+        int roleIndex;
+        try {
+            roleIndex = Integer.parseInt(scanner.nextLine()) - 1;
+            if (roleIndex < 0 || roleIndex >= roles.size()) {
+                System.out.println("Invalid role selection.");
+                return;
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("Please enter a valid number.");
+            return;
+        }
+
+        Role selectedRole = roles.get(roleIndex);
+        projectController.changeUserRoleInProject(selectedUser.getId(), selectedRole);
     }
 
     private void removeMember() {
         if (!isScrumMaster()) return;
+        listMembers();
 
-        System.out.print("Enter username to remove from project: ");
-        String username = scanner.nextLine();
+        System.out.print("Which user do you want to remove from the project? ");
+        int userId = scanner.nextInt();
 
-        System.out.print("Enter project name: ");
-        String projectName = scanner.nextLine();
-
-        boolean success = projectController.removeUserFromProjectByName(username, projectName);
-
-        if (success) {
-            System.out.println("User removed from project.");
-        } else {
-            System.out.println("Could not remove user from project.");
-        }
+        projectController.removeUserFromProject(userId);
     }
 
     private boolean isScrumMaster() {

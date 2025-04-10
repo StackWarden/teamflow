@@ -5,6 +5,7 @@ import org.teamflow.models.*;
 import org.teamflow.services.UserProjectRoleService;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.List;
 
 public class ProjectController {
     private Project currentProject = null;
@@ -42,6 +43,9 @@ public class ProjectController {
         return false;
     }
 
+    public Project getCurrentProject() {
+        return currentProject;
+    }
     public int getCurrentProjectId() { return currentProject.getId();}
 
     public ProjectCreationResult createProject(String name, String description) {
@@ -90,6 +94,10 @@ public class ProjectController {
         } catch (SQLException e) {
             System.out.println("Failed to delete user: " + e.getMessage());
         }
+    }
+
+    public void removeUserFromProject(int userId) {
+        currentProject.deleteUserFromProject(userId);
     }
 
     public boolean removeUserFromProjectByName(String username, String projectName) {
@@ -183,9 +191,21 @@ public class ProjectController {
         return getProjects(sql, uid, scrumMasterRoleId);
     }
 
-    public ArrayList<User> getProjectMembers(int projectId) {
-        System.out.println("[TODO] getProjectMembers: fetch all users for projectId = " + projectId);
-        return new ArrayList<>();
+    public List<User> getProjectMembers(int projectId) {
+        return currentProject.getMembers();
+    }
+
+    public List<Role> getAllRoles() {
+        return Role.getAllRoles();
+    }
+
+    public void changeUserRoleInProject(int userId, Role role) {
+        Project current = getCurrentProject();
+        if (current == null) {
+            System.out.println("No project selected.");
+            return;
+        }
+        current.setUserRole(userId, role);
     }
 
     private ArrayList<Project> getProjects(String sql, Object... params) {
