@@ -226,4 +226,18 @@ public class ProjectController {
             System.out.println("Failed to create user story: " + e.getMessage());
         }
     }
+
+    public void editUserStory(String descriptionInput) {
+        String sql = "UPDATE UserStory SET description = ? WHERE epic_id = ? AND id = ?";
+        try (
+                PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)
+        ) {
+            stmt.setString(1, descriptionInput);
+            stmt.setInt(2, currentEpic.getId());
+            stmt.setInt(3, currentUserStory.getId());
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println("Failed to edit user story: " + e.getMessage());
+        }
+    }
 }

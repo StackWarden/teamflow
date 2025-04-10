@@ -35,6 +35,7 @@ public class EpicScreen implements Screen {
                 case "2" -> listEpics();
                 case "3" -> selectEpic();
                 case "4" -> createUserStory();
+                case "5" -> editUserStory();
                 case "0" -> {
                     System.out.println("Returning to project screen...");
                     running = false;
@@ -50,6 +51,7 @@ public class EpicScreen implements Screen {
         System.out.println("2. View epics");
         System.out.println("3. Select epic");
         System.out.println("4. Create user story");
+        System.out.println("5. Edit user story");
         System.out.println("0. Back");
     }
 
@@ -125,13 +127,19 @@ public class EpicScreen implements Screen {
     }
 
     private void createUserStory() {
-        ProjectController projectController = new ProjectController();
-        Scanner scanner = new Scanner(System.in);
         String description;
 
         System.out.print("Enter description for your user story: ");
         description = scanner.nextLine();
 
         projectController.createUserStory(description);
+    }
+
+    private void editUserStory() {
+        String description;
+        System.out.print("Enter description for your user story: ");
+        description = scanner.nextLine();
+
+        projectController.editUserStory(description);
     }
 }
