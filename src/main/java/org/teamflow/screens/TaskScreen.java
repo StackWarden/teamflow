@@ -87,7 +87,7 @@ public class TaskScreen implements Screen {
                 case "3" -> listChatrooms();
                 case "4" -> createChatroom();
                 case "5" -> {
-                    if (isScrumMaster()) {
+                    if (UserController.isScrumMaster()) {
                         deleteTask();
                     }
                 }
@@ -180,7 +180,7 @@ public class TaskScreen implements Screen {
     }
 
     private void deleteTask() {
-        if (!isScrumMaster()) {
+        if (!UserController.isScrumMaster()) {
             System.out.println("Only Scrum Masters can delete tasks.");
         }
 
@@ -192,9 +192,5 @@ public class TaskScreen implements Screen {
 
         assert task != null;
         projectController.deleteById("Task", task.getId());
-    }
-
-    private boolean isScrumMaster() {
-        return org.teamflow.services.UserProjectRoleService.isScrumMaster(userController.getUserId(), projectController.getCurrentProjectId());
     }
 }

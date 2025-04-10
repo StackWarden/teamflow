@@ -70,7 +70,7 @@ public class EpicScreen implements Screen {
                 case "1" -> screenManager.switchTo(ScreenType.USER_STORY);
                 case "2" -> editEpic();
                 case "3" -> {
-                    if (isScrumMaster()) {
+                    if (UserController.isScrumMaster()) {
                         deleteEpic();
                     }
                 }
@@ -108,7 +108,7 @@ public class EpicScreen implements Screen {
     }
 
     private void deleteEpic() {
-        if (!isScrumMaster()) {
+        if (!UserController.isScrumMaster()) {
             System.out.println("Only Scrum Masters can delete epics.");
         }
 
@@ -120,10 +120,6 @@ public class EpicScreen implements Screen {
 
         assert epic != null;
         projectController.deleteById("Epic", epic.getId());
-    }
-
-    private boolean isScrumMaster() {
-        return org.teamflow.services.UserProjectRoleService.isScrumMaster(userController.getUserId(), projectController.getCurrentProjectId());
     }
 
     private void listEpicChatrooms() {
