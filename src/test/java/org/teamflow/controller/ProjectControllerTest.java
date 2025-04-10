@@ -112,29 +112,51 @@ public class ProjectControllerTest {
     }
 
     @Test
-    public void testCreateAndDeleteUserStory() {
+    public void testCreateEditListAndDeleteUserStory() {
+        String initialDescription = "testdescription";
+        String updatedDescription = "updateddescription";
+        int epicId = 1;
+        int storyId;
+
         String insertSql = "INSERT INTO UserStory (epic_id, description) VALUES (?, ?)";
         try (
                 Connection conn = DatabaseConnection.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS)
+                PreparedStatement insertStmt = conn.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS)
         ) {
-            stmt.setInt(1, 1);
-            stmt.setString(2, "testdescription");
-            stmt.executeUpdate();
+            insertStmt.setInt(1, epicId);
+            insertStmt.setString(2, initialDescription);
+            insertStmt.executeUpdate();
 
-            ResultSet keys = stmt.getGeneratedKeys();
+            ResultSet keys = insertStmt.getGeneratedKeys();
             if (keys.next()) {
-                int id = keys.getInt(1);
+                storyId = keys.getInt(1);
+
+                String updateSql = "UPDATE UserStory SET description = ? WHERE epic_id = ? AND id = ?";
+                try (PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
+                    updateStmt.setString(1, updatedDescription);
+                    updateStmt.setInt(2, epicId);
+                    updateStmt.setInt(3, storyId);
+                    updateStmt.executeUpdate();
+                }
+
+                String selectSql = "SELECT description FROM UserStory WHERE id = ?";
+                try (PreparedStatement selectStmt = conn.prepareStatement(selectSql)) {
+                    selectStmt.setInt(1, storyId);
+                    ResultSet rs = selectStmt.executeQuery();
+                    assertTrue(rs.next(), "User story should exist");
+                    assertEquals(updatedDescription, rs.getString("description"), "Description should be updated");
+                }
+
                 String deleteSql = "DELETE FROM UserStory WHERE id = ?";
                 try (PreparedStatement deleteStmt = conn.prepareStatement(deleteSql)) {
-                    deleteStmt.setInt(1, id);
+                    deleteStmt.setInt(1, storyId);
                     deleteStmt.executeUpdate();
-                    System.out.println("Inserted and deleted UserStory with ID: " + id);
+                    System.out.println("Created, edited, verified, and deleted UserStory with ID: " + storyId);
                 }
             }
 
         } catch (SQLException e) {
-            System.out.println("Failed: " + e.getMessage());
+            fail("SQL Exception: " + e.getMessage());
         }
     }
 

@@ -37,6 +37,7 @@ public class EpicScreen implements Screen {
                 case "3" -> selectEpic();
                 case "4" -> createUserStory();
                 case "5" -> editUserStory();
+                case "6" -> deleteUserStory();
                 case "0" -> {
                     System.out.println("Returning to project screen...");
                     running = false;
@@ -53,6 +54,7 @@ public class EpicScreen implements Screen {
         System.out.println("3. Select epic");
         System.out.println("4. Create user story");
         System.out.println("5. Edit user story");
+        System.out.println("6. Delete user story");
         System.out.println("0. Back");
     }
 
@@ -148,6 +150,14 @@ public class EpicScreen implements Screen {
         description = scanner.nextLine();
 
         projectController.editUserStory(description, storyId);
+    }
+
+    private void deleteUserStory() {
+        System.out.println("Which story do you want to delete?");
+        listUserStories();
+        System.out.print("Enter number of user story: ");
+        int storyId = scanner.nextInt();
+        projectController.deleteUserStory(storyId);
     }
 
     public void listUserStories() {

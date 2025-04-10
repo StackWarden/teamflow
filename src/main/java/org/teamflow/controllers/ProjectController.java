@@ -241,6 +241,18 @@ public class ProjectController {
         }
     }
 
+    public void deleteUserStory(int storyId) {
+        String sql = "DELETE FROM UserStory WHERE id = ?";
+        try (
+                PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)
+        ) {
+            stmt.setInt(1, storyId);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println("Failed to delete user story: " + e.getMessage());
+        }
+    }
+
     public ArrayList<String> listUserStories() {
         ArrayList<String> userStories = new ArrayList<>();
         String sql = "SELECT id, description FROM UserStory WHERE epic_id = ?";
@@ -257,4 +269,6 @@ public class ProjectController {
         }
         return userStories;
     }
+
+
 }
