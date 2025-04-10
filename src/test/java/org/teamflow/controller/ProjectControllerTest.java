@@ -10,9 +10,9 @@ import org.teamflow.database.DatabaseConnection;
 import org.teamflow.models.Project;
 import org.teamflow.models.ProjectCreationResult;
 import org.teamflow.services.UserProjectRoleService;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.Statement;
+
+import java.sql.*;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ProjectControllerTest {
@@ -110,4 +110,54 @@ public class ProjectControllerTest {
             throw new RuntimeException(e);
         }
     }
+
+    @Test
+    public void testCreateEditListAndDeleteUserStory() {
+        String initialDescription = "testdescription";
+        String updatedDescription = "updateddescription";
+        int epicId = 1;
+        int storyId;
+
+        String insertSql = "INSERT INTO UserStory (epic_id, description) VALUES (?, ?)";
+        try (
+                Connection conn = DatabaseConnection.getConnection();
+                PreparedStatement insertStmt = conn.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS)
+        ) {
+            insertStmt.setInt(1, epicId);
+            insertStmt.setString(2, initialDescription);
+            insertStmt.executeUpdate();
+
+            ResultSet keys = insertStmt.getGeneratedKeys();
+            if (keys.next()) {
+                storyId = keys.getInt(1);
+
+                String updateSql = "UPDATE UserStory SET description = ? WHERE epic_id = ? AND id = ?";
+                try (PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
+                    updateStmt.setString(1, updatedDescription);
+                    updateStmt.setInt(2, epicId);
+                    updateStmt.setInt(3, storyId);
+                    updateStmt.executeUpdate();
+                }
+
+                String selectSql = "SELECT description FROM UserStory WHERE id = ?";
+                try (PreparedStatement selectStmt = conn.prepareStatement(selectSql)) {
+                    selectStmt.setInt(1, storyId);
+                    ResultSet rs = selectStmt.executeQuery();
+                    assertTrue(rs.next(), "User story should exist");
+                    assertEquals(updatedDescription, rs.getString("description"), "Description should be updated");
+                }
+
+                String deleteSql = "DELETE FROM UserStory WHERE id = ?";
+                try (PreparedStatement deleteStmt = conn.prepareStatement(deleteSql)) {
+                    deleteStmt.setInt(1, storyId);
+                    deleteStmt.executeUpdate();
+                    System.out.println("Created, edited, verified, and deleted UserStory with ID: " + storyId);
+                }
+            }
+
+        } catch (SQLException e) {
+            fail("SQL Exception: " + e.getMessage());
+        }
+    }
+
 }

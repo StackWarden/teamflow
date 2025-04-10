@@ -213,4 +213,62 @@ public class ProjectController {
         }
         return projects;
     }
+
+    public void createUserStory(String descriptionInput) {
+        String sql = "INSERT INTO UserStory (epic_id, description) VALUES (?, ?)";
+        try (
+                PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)
+        ) {
+            stmt.setInt(1, currentEpic.getId());
+            stmt.setString(2, descriptionInput);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println("Failed to create user story: " + e.getMessage());
+        }
+    }
+
+    public void editUserStory(String descriptionInput, int storyId) {
+        String sql = "UPDATE UserStory SET description = ? WHERE epic_id = ? AND id = ?";
+        try (
+                PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)
+        ) {
+            stmt.setString(1, descriptionInput);
+            stmt.setInt(2, currentEpic.getId());
+            stmt.setInt(3, storyId);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println("Failed to edit user story: " + e.getMessage());
+        }
+    }
+
+    public void deleteUserStory(int storyId) {
+        String sql = "DELETE FROM UserStory WHERE id = ?";
+        try (
+                PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)
+        ) {
+            stmt.setInt(1, storyId);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println("Failed to delete user story: " + e.getMessage());
+        }
+    }
+
+    public ArrayList<String> listUserStories() {
+        ArrayList<String> userStories = new ArrayList<>();
+        String sql = "SELECT id, description FROM UserStory WHERE epic_id = ?";
+        try (
+                PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)
+        ) {
+            stmt.setInt(1, currentEpic.getId());
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                userStories.add(rs.getInt("id") + ": " + rs.getString("description"));
+            }
+        } catch (SQLException e) {
+            System.out.println("Failed to list user stories: " + e.getMessage());
+        }
+        return userStories;
+    }
+
+
 }
