@@ -162,4 +162,8 @@ public class UserController {
             return false;
         }
     }
+
+    public User getUserById(int userId) {
+        return User.getById(userId);
+    }
 }
