@@ -268,6 +268,18 @@ public class ProjectController {
         }
     }
 
+    public void editEpic(String title) {
+        String sql = "Update Epic (title) VALUES (?)";
+        try (
+                PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)
+        ) {
+            stmt.setString(1, title);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println("Failed to update epic: " + e.getMessage());
+        }
+    }
+
     public List<Epic> getEpics() {
         ArrayList<Epic> epics = new ArrayList<>();
         String sql = "SELECT id, title FROM Epic WHERE project_id = ?";

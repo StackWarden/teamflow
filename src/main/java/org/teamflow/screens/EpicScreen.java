@@ -131,8 +131,11 @@ public class EpicScreen implements Screen {
     }
 
     private void editEpic() {
-        System.out.println("[TODO] Edit epic logic");
-        // Bijvoorbeeld: wijzig titel, sla opnieuw op
+        String title;
+        System.out.print("Enter new title for epic: ");
+        title = scanner.nextLine();
+
+        projectController.editEpic(title);
     }
 
     private void deleteEpic() {
