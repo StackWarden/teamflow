@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS  `User_Project` (
 
 CREATE TABLE IF NOT EXISTS  `Epic` (
                         `id` INT AUTO_INCREMENT PRIMARY KEY,
-                        `project_id` INT,
+                        `project_id` INT NOT NULL,
                         `title` VARCHAR(255) NOT NULL,
                         FOREIGN KEY (`project_id`) REFERENCES `Project`(`id`) ON DELETE CASCADE
 );
