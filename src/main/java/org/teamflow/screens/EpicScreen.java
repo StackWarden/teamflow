@@ -5,9 +5,6 @@ import org.teamflow.controllers.ProjectController;
 import org.teamflow.controllers.UserController;
 import org.teamflow.enums.ScreenType;
 import org.teamflow.interfaces.Screen;
-import org.teamflow.models.Epic;
-import org.teamflow.models.EpicCreationResult;
-import org.teamflow.services.UserProjectRoleService;
 
 import java.util.ArrayList;
 import java.util.Scanner;
