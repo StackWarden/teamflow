@@ -58,9 +58,11 @@ public class TaskScreen implements Screen {
     private void createTask() {
         System.out.print("Enter task title: ");
         String title = scanner.nextLine();
+        System.out.println("Enter task description: ");
+        String status = scanner.nextLine();
 
-        System.out.println("[TODO] Create task: " + title);
-        // projectController.createTask(currentStoryId, title);
+        projectController.createTask(title, status);
+
     }
 
     private void listTasks() {
@@ -132,8 +134,7 @@ public class TaskScreen implements Screen {
         System.out.print("Enter new status: ");
         String newStatus = scanner.nextLine();
 
-        System.out.println("[TODO] Update task title/status in DB");
-        // projectController.updateTask(task.getId(), newTitle, newStatus);
+        projectController.editTask(task.getId(), newTitle, newStatus);
     }
 
     private void assignUser() {

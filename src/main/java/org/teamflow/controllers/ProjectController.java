@@ -285,6 +285,7 @@ public class ProjectController {
         return epics;
     }
 
+
     public ArrayList<String> listEpics() {
         ArrayList<String> epics = new ArrayList<>();
         String sql = "SELECT id, title FROM Epic WHERE project_id = ?";
@@ -301,4 +302,33 @@ public class ProjectController {
         }
         return epics;
     }
+
+    public void createTask(String title, String status) {
+        String sql = "INSERT INTO Task (title, status, story_id) VALUES (?, ?, ?)";
+        try (
+                PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)
+        ) {
+            stmt.setString(1, title);
+            stmt.setString(2, status);
+            stmt.setInt(3, currentUserStory.getId());
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println("Failed to create task: " + e.getMessage());
+        }
+    }
+    public void editTask(int id, String title, String status) {
+        String sql = "UPDATE Task SET status = ? WHERE storyid = ? AND id = ?";
+        try (
+                PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)
+        ) {
+            stmt.setInt(1, id);
+            stmt.setInt(2, currentUserStory.getId());
+            stmt.setString(3, title);
+            stmt.setString(4, status);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println("Failed to edit task: " + e.getMessage());
+        }
+    }
+
 }
