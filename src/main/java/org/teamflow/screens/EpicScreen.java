@@ -7,6 +7,7 @@ import org.teamflow.enums.ScreenType;
 import org.teamflow.interfaces.Screen;
 import org.teamflow.models.Epic;
 
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class EpicScreen implements Screen {
@@ -93,13 +94,19 @@ public class EpicScreen implements Screen {
     }
 
     private void createEpic() {
-        System.out.println("[TODO] Create epic logic");
-        // Je zou hier projectController.createEpic(projectId, title) kunnen aanroepen
+        String title;
+
+        System.out.print("Enter name for your epic ");
+        title = scanner.nextLine();
+
+        projectController.createEpic(title);
     }
 
     private void listEpics() {
-        System.out.println("[TODO] Show list of epics for current project");
-        // Je zou hier een method maken in ProjectController zoals getEpicsForProject(projectId)
+        ArrayList<String> epics = projectController.listEpics();
+        for (String epic : epics) {
+            System.out.println(epic);
+        }
     }
 
     private void editEpic() {
