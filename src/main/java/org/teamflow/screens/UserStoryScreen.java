@@ -131,8 +131,6 @@ public class UserStoryScreen implements Screen {
         System.out.println("2. View linked chatrooms");
         System.out.println("3. Create chatroom");
         System.out.println("4. Edit story");
-        System.out.println("5. Delete story");
-        System.out.println("0. Back");
 
         boolean isScrumMaster = projectController.getCurrentProjectId() > 0 &&
                 userController.getUserId() > 0 &&
