@@ -333,15 +333,13 @@ public class ProjectController {
         }
     }
 
-    public void editTask(int id, String title, String status) {
-        String sql = "UPDATE Task SET status = ? WHERE storyid = ? AND id = ?";
+    public void editTask(int id, String status) {
+        String sql = "UPDATE Task SET status = ? WHERE id = ?";
         try (
                 PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)
         ) {
-            stmt.setInt(1, id);
-            stmt.setInt(2, currentUserStory.getId());
-            stmt.setString(3, title);
-            stmt.setString(4, status);
+            stmt.setString(1, status);
+            stmt.setInt(2, id);
             stmt.executeUpdate();
         } catch (SQLException e) {
             System.out.println("Failed to edit task: " + e.getMessage());
@@ -354,13 +352,13 @@ public class ProjectController {
         try (
                 PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)
         ) {
-            stmt.setInt(1, currentEpic.getId());
+            stmt.setInt(1, currentTask.getId());
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 tasks.add(rs.getInt("id") + ": " + rs.getString("title") + ": " + rs.getString("status"));
             }
         } catch (SQLException e) {
-            System.out.println("Failed to list epics: " + e.getMessage());
+            System.out.println("Failed to list tasks: " + e.getMessage());
         }
         return tasks;
     }

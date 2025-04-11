@@ -95,7 +95,7 @@ public class TaskScreen implements Screen {
         Task selectedTask = tasks.get(roleIndex);
         projectController.setCurrentTask(selectedTask);
 
-        if (projectController.getCurrentEpic() != null) {
+        if (projectController.getCurrentTask() != null) {
             showTaskDetailMenu();
         }
     }
@@ -125,13 +125,13 @@ public class TaskScreen implements Screen {
 
     private void printTaskDetailMenu() {
         Task task = projectController.getCurrentTask();
+        String status = task.getStatus() != null ? task.getStatus() : "Unknown status";
         String title = (task != null) ? task.getTitle() : "[No task selected]";
-        System.out.println("\n===== Task: " + title + " =====");
+        System.out.println("\n===== Task: " + title + ", Status: " + status +" =====");
         System.out.println("1. Edit task");
         System.out.println("2. Assign user");
         System.out.println("3. View chatrooms");
         System.out.println("4. Create chatroom");
-        System.out.println("5. Delete task");
 
         boolean isScrumMaster = UserProjectRoleService.isScrumMaster(
                 userController.getUserId(),
@@ -152,13 +152,10 @@ public class TaskScreen implements Screen {
             return;
         }
 
-        System.out.print("Enter new title: ");
-        String newTitle = scanner.nextLine();
-
         System.out.print("Enter new status: ");
         String newStatus = scanner.nextLine();
-
-        projectController.editTask(task.getId(), newTitle, newStatus);
+        projectController.editTask(task.getId(), newStatus);
+        task.setStatus(newStatus);
     }
 
     private void assignUser() {
