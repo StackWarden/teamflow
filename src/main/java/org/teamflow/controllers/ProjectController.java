@@ -238,6 +238,23 @@ public class ProjectController {
         }
     }
 
+    public List<UserStory> getUserStories() {
+        ArrayList<UserStory> stories = new ArrayList<>();
+        String sql = "SELECT id, description FROM UserStory WHERE epic_id = ?";
+        try (
+                PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)
+        ) {
+            stmt.setInt(1, currentEpic.getId());
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                stories.add(new UserStory (rs.getInt("id"), currentEpic.getId() ,rs.getString("description")));
+            }
+        } catch (SQLException e) {
+            System.out.println("Failed to list user stories: " + e.getMessage());
+        }
+        return stories;
+    }
+
     public ArrayList<String> listUserStories() {
         ArrayList<String> userStories = new ArrayList<>();
         String sql = "SELECT id, description FROM UserStory WHERE epic_id = ?";
@@ -285,7 +302,6 @@ public class ProjectController {
         return epics;
     }
 
-
     public ArrayList<String> listEpics() {
         ArrayList<String> epics = new ArrayList<>();
         String sql = "SELECT id, title FROM Epic WHERE project_id = ?";
@@ -316,6 +332,7 @@ public class ProjectController {
             System.out.println("Failed to create task: " + e.getMessage());
         }
     }
+
     public void editTask(int id, String title, String status) {
         String sql = "UPDATE Task SET status = ? WHERE storyid = ? AND id = ?";
         try (
@@ -331,4 +348,37 @@ public class ProjectController {
         }
     }
 
+    public ArrayList<String> listTasks() {
+        ArrayList<String> tasks = new ArrayList<>();
+        String sql = "SELECT id, title, status FROM Task WHERE story_id = ?";
+        try (
+                PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)
+        ) {
+            stmt.setInt(1, currentEpic.getId());
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                tasks.add(rs.getInt("id") + ": " + rs.getString("title") + ": " + rs.getString("status"));
+            }
+        } catch (SQLException e) {
+            System.out.println("Failed to list epics: " + e.getMessage());
+        }
+        return tasks;
+    }
+
+    public List<Task> getTasks() {
+        ArrayList<Task> tasks = new ArrayList<>();
+        String sql = "SELECT id, title, status FROM Task WHERE story_id = ?";
+        try (
+                PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)
+        ) {
+            stmt.setInt(1, currentUserStory.getId());
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                tasks.add(new Task (rs.getInt("id"), rs.getString("title"), rs.getString("status"), currentUserStory.getId()));
+            }
+        } catch (SQLException e) {
+            System.out.println("Failed to list tasks: " + e.getMessage());
+        }
+        return tasks;
+    }
 }

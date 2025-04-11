@@ -5,9 +5,11 @@ import org.teamflow.controllers.ProjectController;
 import org.teamflow.controllers.UserController;
 import org.teamflow.enums.ScreenType;
 import org.teamflow.interfaces.Screen;
+import org.teamflow.models.Epic;
 import org.teamflow.models.Task;
 import org.teamflow.services.UserProjectRoleService;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -66,14 +68,37 @@ public class TaskScreen implements Screen {
     }
 
     private void listTasks() {
-        System.out.println("[TODO] List tasks for selected story");
-        // List<Task> tasks = projectController.getTasksForStory(storyId);
+        ArrayList<String> tasks = projectController.listTasks();
+        for (String task : tasks) {
+            System.out.println(task);
+        }
     }
 
     private void selectTask() {
-        System.out.println("[TODO] Select a task (by number or ID) and set currentTask in controller");
-        // projectController.setCurrentTask(task);
-        showTaskDetailMenu();
+        List<Task> tasks = projectController.getTasks();
+        System.out.println("Select a task:");
+        for (int i = 0; i < tasks.size(); i++) {
+            System.out.println((i + 1) + ". " + tasks.get(i).getTitle());
+        }
+
+        int roleIndex;
+        try {
+            roleIndex = Integer.parseInt(scanner.nextLine()) - 1;
+            if (roleIndex < 0 || roleIndex >= tasks.size()) {
+                System.out.println("Invalid task selection.");
+                return;
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("Please enter a valid number.");
+            return;
+        }
+
+        Task selectedTask = tasks.get(roleIndex);
+        projectController.setCurrentTask(selectedTask);
+
+        if (projectController.getCurrentEpic() != null) {
+            showTaskDetailMenu();
+        }
     }
 
     private void showTaskDetailMenu() {

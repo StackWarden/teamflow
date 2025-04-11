@@ -4,11 +4,13 @@ import org.teamflow.ScreenManager;
 import org.teamflow.controllers.ProjectController;
 import org.teamflow.controllers.UserController;
 import org.teamflow.interfaces.Screen;
+import org.teamflow.models.Epic;
 import org.teamflow.models.UserStory;
 import org.teamflow.enums.ScreenType;
 import org.teamflow.services.UserProjectRoleService;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class UserStoryScreen implements Screen {
@@ -71,10 +73,30 @@ public class UserStoryScreen implements Screen {
     }
 
     private void selectUserStory() {
-        System.out.println("[TODO] Select a user story from list by number or ID");
-        // UserStory selected = ...
-        // projectController.setCurrentUserStory(selected);
-        showUserStoryDetailMenu();
+        List<UserStory> stories = projectController.getUserStories();
+        System.out.println("Select a story:");
+        for (int i = 0; i < stories.size(); i++) {
+            System.out.println((i + 1) + ". " + stories.get(i).getDescription());
+        }
+
+        int roleIndex;
+        try {
+            roleIndex = Integer.parseInt(scanner.nextLine()) - 1;
+            if (roleIndex < 0 || roleIndex >= stories.size()) {
+                System.out.println("Invalid story selection.");
+                return;
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("Please enter a valid number.");
+            return;
+        }
+
+        UserStory selectedUserStory = stories.get(roleIndex);
+        projectController.setCurrentUserStory(selectedUserStory);
+
+        if (projectController.getCurrentEpic() != null) {
+            showUserStoryDetailMenu();
+        }
     }
 
     private void showUserStoryDetailMenu() {
