@@ -11,6 +11,8 @@ import org.teamflow.services.UserProjectRoleService;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import static org.teamflow.ScreenManager.clearScreen;
+
 public class ProjectScreen implements Screen {
 
     protected final Scanner scanner;
@@ -30,8 +32,10 @@ public class ProjectScreen implements Screen {
         boolean running = true;
 
         while (running) {
+            clearScreen();
+
             printMenu();
-            String input = scanner.nextLine();
+            String input = scanner.nextLine().trim();
 
             switch (input) {
                 case "1" -> goToEpicScreen();
@@ -53,6 +57,9 @@ public class ProjectScreen implements Screen {
                 case "0" -> {
                     System.out.println("Returning to dashboard...");
                     running = false;
+                }
+                case "" -> {
+
                 }
                 default -> {
                     System.out.println();
@@ -87,8 +94,7 @@ public class ProjectScreen implements Screen {
     }
 
     protected void goToChatroomScreen() {
-        System.out.println("TODO: Open ChatroomScreen");
-        // screenManager.switchTo(ScreenType.CHATROOM);
+         screenManager.switchTo(ScreenType.CHATROOM);
     }
 
     protected void goToMemberScreen() {
