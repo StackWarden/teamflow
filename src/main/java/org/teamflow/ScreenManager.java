@@ -40,6 +40,10 @@ public class ScreenManager {
         screenRegistry.put(type, screen);
     }
 
+    public ChatController getChatController() {
+        return chatController;
+    }
+
     public void switchTo(ScreenType type) {
         currentScreen = screenRegistry.get(type);
         if (currentScreen != null) {
