@@ -64,7 +64,6 @@ public class TaskScreen implements Screen {
         String status = scanner.nextLine();
 
         projectController.createTask(title, status);
-
     }
 
     private void listTasks() {
