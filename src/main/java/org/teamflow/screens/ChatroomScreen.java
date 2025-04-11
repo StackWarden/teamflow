@@ -204,17 +204,4 @@ public class ChatroomScreen implements Screen {
             System.out.println("[" + msg.getTimestamp() + "] " + username + ": " + msg.getContent());
         }
     }
-
-    private boolean handleUserInput(Chatroom chatroom) {
-        String input = scanner.nextLine().trim();
-
-        if (input.equals("0")) {
-            return false;
-        }
-
-        if (!input.isEmpty()) {
-            chatController.sendMessage(userController.getUserId(), input);
-        }
-        return true;
-    }
 }

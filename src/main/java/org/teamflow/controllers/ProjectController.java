@@ -268,6 +268,23 @@ public class ProjectController {
         }
     }
 
+    public List<Epic> getEpics() {
+        ArrayList<Epic> epics = new ArrayList<>();
+        String sql = "SELECT id, title FROM Epic WHERE project_id = ?";
+        try (
+                PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)
+        ) {
+            stmt.setInt(1, currentProject.getId());
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                epics.add(new Epic (rs.getInt("id"), currentProject.getId() ,rs.getString("title")));
+            }
+        } catch (SQLException e) {
+            System.out.println("Failed to list epics: " + e.getMessage());
+        }
+        return epics;
+    }
+
     public ArrayList<String> listEpics() {
         ArrayList<String> epics = new ArrayList<>();
         String sql = "SELECT id, title FROM Epic WHERE project_id = ?";

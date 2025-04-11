@@ -6,8 +6,10 @@ import org.teamflow.controllers.UserController;
 import org.teamflow.enums.ScreenType;
 import org.teamflow.interfaces.Screen;
 import org.teamflow.models.Epic;
+import org.teamflow.models.Role;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class EpicScreen implements Screen {
@@ -54,11 +56,30 @@ public class EpicScreen implements Screen {
     }
 
     private void selectEpic() {
-        System.out.println("[TODO] Toon lijst van epics met nummers om te selecteren]");
-        // Kies epic → projectController.setCurrentEpic(epic);
+        List<Epic> epics = projectController.getEpics();
+        System.out.println("Select a Epic:");
+        for (int i = 0; i < epics.size(); i++) {
+            System.out.println((i + 1) + ". " + epics.get(i).getTitle());
+        }
 
-        // Daarna:
-        showEpicDetailsMenu(); // -> nieuw submenu
+        int roleIndex;
+        try {
+            roleIndex = Integer.parseInt(scanner.nextLine()) - 1;
+            if (roleIndex < 0 || roleIndex >= epics.size()) {
+                System.out.println("Invalid epic selection.");
+                return;
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("Please enter a valid number.");
+            return;
+        }
+
+        Epic selectedEpic = epics.get(roleIndex);
+        projectController.setCurrentEpic(selectedEpic);
+
+        if (projectController.getCurrentEpic() != null) {
+            showEpicDetailsMenu();
+        }
     }
 
     private void showEpicDetailsMenu() {
