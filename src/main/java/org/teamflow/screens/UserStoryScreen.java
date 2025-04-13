@@ -148,7 +148,7 @@ public class UserStoryScreen implements Screen {
 
     private void listChatrooms() {
         ChatController chatController = screenManager.getChatController();
-        List<Chatroom> chatrooms = chatController.getChatroomsForEpic(projectController.getCurrentUserStory().getId());
+        List<Chatroom> chatrooms = chatController.getChatroomsForUserStory(projectController.getCurrentUserStory().getId());
 
         System.out.println("Select a Chatroom:");
 

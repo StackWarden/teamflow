@@ -1,11 +1,13 @@
 package org.teamflow.screens;
 
 import org.teamflow.ScreenManager;
+import org.teamflow.controllers.ChatController;
 import org.teamflow.controllers.ProjectController;
 import org.teamflow.controllers.UserController;
+import org.teamflow.enums.ChatroomLinkType;
 import org.teamflow.enums.ScreenType;
 import org.teamflow.interfaces.Screen;
-import org.teamflow.models.Epic;
+import org.teamflow.models.Chatroom;
 import org.teamflow.models.Task;
 import org.teamflow.services.UserProjectRoleService;
 
@@ -190,15 +192,44 @@ public class TaskScreen implements Screen {
     }
 
     private void listChatrooms() {
-        System.out.println("[TODO] List chatrooms linked to this task");
-        // chatroomController.getForTask(taskId);
+        ChatController chatController = screenManager.getChatController();
+        List<Chatroom> chatrooms = chatController.getChatroomsForTask(projectController.getCurrentTask().getId());
+
+        System.out.println("Select a Chatroom:");
+
+        for (int i = 0; i < chatrooms.size(); i++) {
+            System.out.println((i + 1) + ". " + chatrooms.get(i).getName());
+        }
+
+        int roleIndex;
+        try {
+            roleIndex = Integer.parseInt(scanner.nextLine()) - 1;
+            if (roleIndex < 0 || roleIndex >= chatrooms.size()) {
+                System.out.println("Invalid chatroom selection.");
+                return;
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("Please enter a valid number.");
+            return;
+        }
+
+        Chatroom selectedChatroom = chatrooms.get(roleIndex);
+        chatController.setCurrentChatroom(selectedChatroom);
+
+        if (chatController.getCurrentChatroom() != null) {
+            screenManager.switchTo(ScreenType.CHATROOM);
+        }
     }
 
     private void createChatroom() {
-        System.out.print("Enter chatroom name: ");
-        String name = scanner.nextLine();
-        System.out.println("[TODO] Create and link chatroom: " + name);
-        // chatroomController.createChatroom(name, taskId, "task");
+        ChatController chatController = screenManager.getChatController();
+        System.out.println("What is the name of the Chatroom: ");
+        String chatroomname = scanner.nextLine();
+
+        Chatroom chatroom = new Chatroom(chatroomname);
+        chatroom.setLinkType(ChatroomLinkType.TASK);
+        chatroom.setLinkedEntityId(projectController.getCurrentTask().getId());
+        chatController.createChatroom(chatroom);
     }
 
     private void deleteTask() {
