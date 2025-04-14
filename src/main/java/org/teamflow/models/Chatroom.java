@@ -92,7 +92,7 @@ public class Chatroom {
         """, linkedEntityId);
 
             case STORY -> queryChatrooms("""
-            SELECT c.id, c.name
+            SELECT c.id, c.name,
                 'STORY' AS link_type
             FROM Chatroom c
             INNER JOIN Story_Chatroom sc ON c.id = sc.chatroom_id
@@ -101,7 +101,7 @@ public class Chatroom {
         """, linkedEntityId);
 
             case TASK -> queryChatrooms("""
-            SELECT c.id, c.name
+            SELECT c.id, c.name,
                 'TASK' AS link_type
             FROM Chatroom c
             INNER JOIN Task_Chatroom tc ON c.id = tc.chatroom_id
@@ -109,7 +109,7 @@ public class Chatroom {
         """, linkedEntityId);
 
             case SPRINT -> queryChatrooms("""
-            SELECT c.id, c.name
+            SELECT c.id, c.name,
                 'SPRINT' AS link_type
             FROM Chatroom c
             INNER JOIN Sprint_Chatroom src ON c.id = src.chatroom_id

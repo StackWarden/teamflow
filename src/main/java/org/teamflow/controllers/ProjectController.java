@@ -358,7 +358,7 @@ public class ProjectController {
                 tasks.add(rs.getInt("id") + ": " + rs.getString("title") + ": " + rs.getString("status"));
             }
         } catch (SQLException e) {
-            System.out.println("Failed to list tasks: " + e.getMessage());
+            System.out.println("Failed to list Tasks: " + e.getMessage());
         }
         return tasks;
     }

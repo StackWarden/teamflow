@@ -40,4 +40,11 @@ public class ChatController {
     public List<Chatroom> getChatroomsForEpic(int epicId) {
         return Chatroom.getLinkedChatrooms(ChatroomLinkType.EPIC, epicId);
     }
+    public List<Chatroom> getChatroomsForUserStory(int storyId) {
+        return Chatroom.getLinkedChatrooms(ChatroomLinkType.STORY, storyId);
+    }
+
+    public List<Chatroom> getChatroomsForTask(int taskId) {
+        return Chatroom.getLinkedChatrooms(ChatroomLinkType.TASK, taskId);
+    }
 }
