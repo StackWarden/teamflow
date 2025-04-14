@@ -386,7 +386,8 @@ public class ProjectController {
         }
         return tasks;
     }
-    public void AssignedUsers() {
+
+    public void assignedUsers() {
         String sql = "SELECT user.id, user.username " +
                 "FROM user_task " +
                 "JOIN user ON user.id = user_task.user_id " +

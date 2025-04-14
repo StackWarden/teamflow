@@ -204,7 +204,7 @@ public class TaskScreen implements Screen {
         );
         if (isScrumMaster) {
 
-            projectController.AssignedUsers();
+            projectController.assignedUsers();
 
             System.out.print("Which user do you want to remove from the task? ");
 
