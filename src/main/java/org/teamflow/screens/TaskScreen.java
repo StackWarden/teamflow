@@ -182,11 +182,11 @@ public class TaskScreen implements Screen {
             int index = Integer.parseInt(scanner.nextLine()) - 1;
             if (index >= 0 && index < users.size()) {
                 var selectedUser = users.get(index);
-                projectController.assignUserToTask(task.getId(), selectedUser.getId());
+                projectController.assignUserToTask(selectedUser.getId());
                 System.out.println(selectedUser + " has been assigned.");
             }
         } else {
-            projectController.assignUserToTask(task.getId(), userController.getUserId());
+            projectController.assignUserToTask(userController.getUserId());
             System.out.println("You have been added to this task");
         }
     }

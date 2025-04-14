@@ -102,8 +102,8 @@ public class ProjectController {
         currentProject.deleteUserFromProject(userId);
     }
 
-    public void assignUserToTask(int taskId, int userId) {
-        currentTask.assignUserToTask(taskId);
+    public void assignUserToTask(int userId) {
+        currentTask.assignUserToTask(userId);
     }
 
     public boolean editProject(int projectId, String newName, String newDescription) {

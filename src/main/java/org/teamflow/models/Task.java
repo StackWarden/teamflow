@@ -1,5 +1,11 @@
 package org.teamflow.models;
 
+import org.teamflow.database.DatabaseConnection;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
 public class Task {
     private int id;
     private String title;
@@ -62,10 +68,19 @@ public class Task {
                 ", storyId=" + storyId +
                 '}';
     }
-    public void assignUserToTask(int taskId) {
+    public void assignUserToTask(int userId) {
         if (id <= 0) {
             System.out.println("Invalid task ID.");
             return;
         }
+
+        String sql = "INSERT INTO user_task SELECT task_id (user_id, task_id) VALUES (?, ?)";
+        try {
+            PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
     }
+
 }

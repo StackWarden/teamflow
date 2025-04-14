@@ -173,5 +173,4 @@ public class UserController {
         ProjectController projectController = new ProjectController();
         return org.teamflow.services.UserProjectRoleService.isScrumMaster(userController.getUserId(), projectController.getCurrentProjectId());
     }
-    
 }
