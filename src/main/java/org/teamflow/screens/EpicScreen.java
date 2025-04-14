@@ -1,16 +1,23 @@
 package org.teamflow.screens;
 
 import org.teamflow.ScreenManager;
+import org.teamflow.controllers.ChatController;
 import org.teamflow.controllers.ProjectController;
 import org.teamflow.controllers.UserController;
+import org.teamflow.enums.ChatroomLinkType;
 import org.teamflow.enums.ScreenType;
 import org.teamflow.interfaces.Screen;
+import org.teamflow.models.Chatroom;
 import org.teamflow.models.Epic;
 import org.teamflow.models.Role;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.List;
 import java.util.Scanner;
+
+import static org.teamflow.ScreenManager.clearScreen;
 
 public class EpicScreen implements Screen {
 
@@ -160,12 +167,43 @@ public class EpicScreen implements Screen {
     }
 
     private void listEpicChatrooms() {
-        System.out.println("[TODO] List all chatrooms linked to this epic");
-        // Je kunt hier later Epic_Chatroom gebruiken
+        ChatController chatController = screenManager.getChatController();
+        List<Chatroom> chatrooms = chatController.getChatroomsForEpic(projectController.getCurrentEpic().getId());
+
+        System.out.println("Select a Chatroom:");
+
+        for (int i = 0; i < chatrooms.size(); i++) {
+            System.out.println((i + 1) + ". " + chatrooms.get(i).getName());
+        }
+
+        int roleIndex;
+        try {
+            roleIndex = Integer.parseInt(scanner.nextLine()) - 1;
+            if (roleIndex < 0 || roleIndex >= chatrooms.size()) {
+                System.out.println("Invalid chatroom selection.");
+                return;
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("Please enter a valid number.");
+            return;
+        }
+
+        Chatroom selectedChatroom = chatrooms.get(roleIndex);
+        chatController.setCurrentChatroom(selectedChatroom);
+
+        if (chatController.getCurrentChatroom() != null) {
+            screenManager.switchTo(ScreenType.CHATROOM);
+        }
     }
 
     private void createEpicChatroom() {
-        System.out.println("[TODO] Create a new chatroom and link it to this epic");
-        // ChatController.createChatroom(...) + koppelen via Epic_Chatroom
+        ChatController chatController = screenManager.getChatController();
+        System.out.println("What is the name of the Chatroom: ");
+        String name = scanner.nextLine();
+
+        Chatroom chatroom = new Chatroom(name);
+        chatroom.setLinkType(ChatroomLinkType.EPIC);
+        chatroom.setLinkedEntityId(projectController.getCurrentEpic().getId());
+        chatController.createChatroom(chatroom);
     }
 }
