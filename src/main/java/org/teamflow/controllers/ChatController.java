@@ -1,5 +1,6 @@
 package org.teamflow.controllers;
 
+import org.teamflow.enums.ChatroomLinkType;
 import org.teamflow.models.Chatroom;
 import org.teamflow.models.Message;
 
@@ -34,5 +35,16 @@ public class ChatController {
     public Chatroom createChatroom(Chatroom chatroom) {
         chatroom.createChatroom(chatroom);
         return chatroom;
+    }
+
+    public List<Chatroom> getChatroomsForEpic(int epicId) {
+        return Chatroom.getLinkedChatrooms(ChatroomLinkType.EPIC, epicId);
+    }
+    public List<Chatroom> getChatroomsForUserStory(int storyId) {
+        return Chatroom.getLinkedChatrooms(ChatroomLinkType.STORY, storyId);
+    }
+
+    public List<Chatroom> getChatroomsForTask(int taskId) {
+        return Chatroom.getLinkedChatrooms(ChatroomLinkType.TASK, taskId);
     }
 }

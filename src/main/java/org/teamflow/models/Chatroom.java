@@ -79,6 +79,45 @@ public class Chatroom {
         return queryChatrooms(sql);
     }
 
+    public static List<Chatroom> getLinkedChatrooms(ChatroomLinkType linkType, int linkedEntityId) {
+        return switch (linkType) {
+            case NONE -> getUnlinkedChatrooms();
+
+            case EPIC -> queryChatrooms("""
+            SELECT c.id, c.name,
+                'EPIC' AS link_type
+            FROM Chatroom c
+            INNER JOIN Epic_Chatroom ec ON c.id = ec.chatroom_id
+            WHERE ec.epic_id = ?
+        """, linkedEntityId);
+
+            case STORY -> queryChatrooms("""
+            SELECT c.id, c.name,
+                'STORY' AS link_type
+            FROM Chatroom c
+            INNER JOIN Story_Chatroom sc ON c.id = sc.chatroom_id
+            WHERE sc.story_id = ?
+            
+        """, linkedEntityId);
+
+            case TASK -> queryChatrooms("""
+            SELECT c.id, c.name,
+                'TASK' AS link_type
+            FROM Chatroom c
+            INNER JOIN Task_Chatroom tc ON c.id = tc.chatroom_id
+            WHERE tc.task_id = ?
+        """, linkedEntityId);
+
+            case SPRINT -> queryChatrooms("""
+            SELECT c.id, c.name,
+                'SPRINT' AS link_type
+            FROM Chatroom c
+            INNER JOIN Sprint_Chatroom src ON c.id = src.chatroom_id
+            WHERE src.sprint_id = ?
+        """, linkedEntityId);
+        };
+    }
+
     public static List<Chatroom> getAccessibleChatroomsForUser(int userId) {
         String sql = """
            SELECT DISTINCT\s
@@ -227,6 +266,8 @@ public class Chatroom {
                 chatroom.setId(chatroomId);
 
                 int linkedId = chatroom.getLinkedEntityId();
+                System.out.println("Linking to epic ID: " + chatroom.getLinkedEntityId());
+
 
                 switch (chatroom.getLinkType()) {
                     case EPIC -> linkTo("Epic_Chatroom", "epic_id", linkedId, chatroomId);

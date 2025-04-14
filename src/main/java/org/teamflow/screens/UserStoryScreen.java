@@ -1,14 +1,19 @@
 package org.teamflow.screens;
 
 import org.teamflow.ScreenManager;
+import org.teamflow.controllers.ChatController;
 import org.teamflow.controllers.ProjectController;
 import org.teamflow.controllers.UserController;
+import org.teamflow.enums.ChatroomLinkType;
 import org.teamflow.interfaces.Screen;
+import org.teamflow.models.Chatroom;
+import org.teamflow.models.Epic;
 import org.teamflow.models.UserStory;
 import org.teamflow.enums.ScreenType;
 import org.teamflow.services.UserProjectRoleService;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class UserStoryScreen implements Screen {
@@ -71,10 +76,30 @@ public class UserStoryScreen implements Screen {
     }
 
     private void selectUserStory() {
-        System.out.println("[TODO] Select a user story from list by number or ID");
-        // UserStory selected = ...
-        // projectController.setCurrentUserStory(selected);
-        showUserStoryDetailMenu();
+        List<UserStory> stories = projectController.getUserStories();
+        System.out.println("Select a story:");
+        for (int i = 0; i < stories.size(); i++) {
+            System.out.println((i + 1) + ". " + stories.get(i).getDescription());
+        }
+
+        int roleIndex;
+        try {
+            roleIndex = Integer.parseInt(scanner.nextLine()) - 1;
+            if (roleIndex < 0 || roleIndex >= stories.size()) {
+                System.out.println("Invalid story selection.");
+                return;
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("Please enter a valid number.");
+            return;
+        }
+
+        UserStory selectedUserStory = stories.get(roleIndex);
+        projectController.setCurrentUserStory(selectedUserStory);
+
+        if (projectController.getCurrentEpic() != null) {
+            showUserStoryDetailMenu();
+        }
     }
 
     private void showUserStoryDetailMenu() {
@@ -109,8 +134,6 @@ public class UserStoryScreen implements Screen {
         System.out.println("2. View linked chatrooms");
         System.out.println("3. Create chatroom");
         System.out.println("4. Edit story");
-        System.out.println("5. Delete story");
-        System.out.println("0. Back");
 
         boolean isScrumMaster = projectController.getCurrentProjectId() > 0 &&
                 userController.getUserId() > 0 &&
@@ -124,15 +147,45 @@ public class UserStoryScreen implements Screen {
     }
 
     private void listChatrooms() {
-        System.out.println("[TODO] List all chatrooms linked to this user story");
-        // Bijv: chatroomController.getForStory(storyId)
+        ChatController chatController = screenManager.getChatController();
+        List<Chatroom> chatrooms = chatController.getChatroomsForUserStory(projectController.getCurrentUserStory().getId());
+
+        System.out.println("Select a Chatroom:");
+
+        for (int i = 0; i < chatrooms.size(); i++) {
+            System.out.println((i + 1) + ". " + chatrooms.get(i).getName());
+        }
+
+        int roleIndex;
+        try {
+            roleIndex = Integer.parseInt(scanner.nextLine()) - 1;
+            if (roleIndex < 0 || roleIndex >= chatrooms.size()) {
+                System.out.println("Invalid chatroom selection.");
+                return;
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("Please enter a valid number.");
+            return;
+        }
+
+        Chatroom selectedChatroom = chatrooms.get(roleIndex);
+        chatController.setCurrentChatroom(selectedChatroom);
+
+        if (chatController.getCurrentChatroom() != null) {
+            screenManager.switchTo(ScreenType.CHATROOM);
+        }
     }
 
-    private void createChatroom() {
-        System.out.print("Enter chatroom name: ");
-        String name = scanner.nextLine();
-        System.out.println("[TODO] Create and link chatroom: " + name);
-        // chatController.createAndLink(name, storyId, "user_story")
+
+    private void createChatroom() {;
+        ChatController chatController = screenManager.getChatController();
+        System.out.println("What is the name of the Chatroom: ");
+        String chatroomname = scanner.nextLine();
+
+        Chatroom chatroom = new Chatroom(chatroomname);
+        chatroom.setLinkType(ChatroomLinkType.STORY);
+        chatroom.setLinkedEntityId(projectController.getCurrentUserStory().getId());
+        chatController.createChatroom(chatroom);
     }
 
     private void editUserStory() {
