@@ -4,6 +4,7 @@ import org.teamflow.ScreenManager;
 import org.teamflow.controllers.ChatController;
 import org.teamflow.controllers.ProjectController;
 import org.teamflow.controllers.UserController;
+import org.teamflow.database.DatabaseConnection;
 import org.teamflow.enums.ChatroomLinkType;
 import org.teamflow.enums.ScreenType;
 import org.teamflow.interfaces.Screen;
@@ -12,6 +13,7 @@ import org.teamflow.models.Task;
 import org.teamflow.models.User;
 import org.teamflow.services.UserProjectRoleService;
 
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -193,9 +195,38 @@ public class TaskScreen implements Screen {
             System.out.println("You have been added to this task");
         }
     }
-    private void listMembers() {
-        List<User> members = projectController.getProjectMembers(projectController.getCurrentTaskId());
+    private void AssignedUsers() {
+        String sql = "SELECT user.id, user.username " +
+                "FROM user_task " +
+                "JOIN user ON user.id = user_task.user_id " +
+                "WHERE user_task.task_id = ?";
+
+        try (
+                Connection conn = DatabaseConnection.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)
+        ) {
+            stmt.setInt(1, projectController.getCurrentTask().getId());
+
+            ResultSet rs = stmt.executeQuery();
+            System.out.println("Assigned Users:");
+
+            int count = 0;
+            while (rs.next()) {
+                int userId = rs.getInt("id");
+                String username = rs.getString("username");
+                System.out.println(userId + ". " + username);
+                count++;
+            }
+
+            if (count == 0) {
+                System.out.println("No users assigned to this task.");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
+
 
     private void removeUserFromTask() {
         boolean isScrumMaster = UserProjectRoleService.isScrumMaster(
@@ -204,11 +235,12 @@ public class TaskScreen implements Screen {
         );
         if (isScrumMaster) {
 
-            listMembers();
+            AssignedUsers();
 
             System.out.print("Which user do you want to remove from the task? ");
 
             int userId;
+
             try {
                 userId = Integer.parseInt(scanner.nextLine());
             } catch (NumberFormatException e) {
