@@ -269,12 +269,15 @@ public class ProjectController {
     }
 
     public void editEpic(String title) {
-        String sql = "Update Epic (title) VALUES (?)";
+        String sql = "UPDATE Epic SET title = ? WHERE id = ?";
         try (
                 PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)
         ) {
-            stmt.setString(1, title);
-            stmt.executeUpdate();
+            stmt.setString(1, title);  // Set the new title
+            stmt.setInt(2, currentProject.getId());
+
+            int rowsUpdated = stmt.executeUpdate();
+                System.out.println("Epic updated successfully.");
         } catch (SQLException e) {
             System.out.println("Failed to update epic: " + e.getMessage());
         }

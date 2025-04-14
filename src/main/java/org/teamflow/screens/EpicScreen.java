@@ -132,9 +132,15 @@ public class EpicScreen implements Screen {
 
     private void editEpic() {
         String title;
-        System.out.print("Enter new title for epic: ");
-        title = scanner.nextLine();
+        System.out.print("Enter the new title for the epic you want to edit: ");
+        title = scanner.nextLine().trim();
 
+        if (title.isEmpty()) {
+            System.out.println("Title cannot be empty. Please try again.");
+            return;
+        }
+
+        System.out.println("Editing epic with new title: " + title);
         projectController.editEpic(title);
     }
 
