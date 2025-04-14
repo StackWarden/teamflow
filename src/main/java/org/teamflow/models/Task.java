@@ -74,11 +74,14 @@ public class Task {
             return;
         }
 
-        String sql = "INSERT INTO user_task SELECT task_id (user_id, task_id) VALUES (?, ?)";
+        String sql = "INSERT INTO user_task (task_id, user_id) VALUES (?, ?)";
         try {
             PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql);
+            stmt.setInt(1, id);
+            stmt.setInt(2, userId);
+            stmt.execute();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            System.out.println(e.getMessage());
         }
     }
 }
