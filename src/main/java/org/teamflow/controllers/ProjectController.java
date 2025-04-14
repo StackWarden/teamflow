@@ -359,7 +359,7 @@ public class ProjectController {
         try (
                 PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)
         ) {
-            stmt.setInt(1, currentTask.getId());
+            stmt.setInt(1, getCurrentUserStory().getId());
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 tasks.add(rs.getInt("id") + ": " + rs.getString("title") + ": " + rs.getString("status"));
