@@ -62,4 +62,10 @@ public class Task {
                 ", storyId=" + storyId +
                 '}';
     }
+    public void assignUserToTask(int taskId) {
+        if (id <= 0) {
+            System.out.println("Invalid task ID.");
+            return;
+        }
+    }
 }

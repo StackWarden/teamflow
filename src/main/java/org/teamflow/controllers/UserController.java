@@ -3,6 +3,7 @@ package org.teamflow.controllers;
 import org.teamflow.database.DatabaseConnection;
 import org.teamflow.models.Project;
 import org.teamflow.models.User;
+import org.teamflow.models.Task;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -171,5 +172,36 @@ public class UserController {
         UserController userController = new UserController();
         ProjectController projectController = new ProjectController();
         return org.teamflow.services.UserProjectRoleService.isScrumMaster(userController.getUserId(), projectController.getCurrentProjectId());
+    }
+
+    public boolean addUserToTask(int userId, int taskId) {
+        int roleId = 1;
+        String checkSql = "SELECT * FROM user_project WHERE user_id = ? AND task_id = ? AND role_id = ?";
+        String insertSql = "INSERT INTO user_project (user_id, task_id, role_id) VALUES (?, ?, ?)";
+
+        try (
+                Connection conn = DatabaseConnection.getConnection();
+                PreparedStatement checkStmt = conn.prepareStatement(checkSql)
+        ) {
+            checkStmt.setInt(1, userId);
+            checkStmt.setInt(2, taskId);
+            checkStmt.setInt(3, roleId);
+            ResultSet rs = checkStmt.executeQuery();
+
+            if (rs.next()) {
+                return false;
+            }
+
+            try (PreparedStatement insertStmt = conn.prepareStatement(insertSql)) {
+                insertStmt.setInt(1, userId);
+                insertStmt.setInt(2, taskId);
+                insertStmt.setInt(3, roleId);
+                insertStmt.executeUpdate();
+                return true;
+            }
+        } catch (SQLException e) {
+            System.out.println("Failed to add user to task: " + e.getMessage());
+            return false;
+        }
     }
 }
