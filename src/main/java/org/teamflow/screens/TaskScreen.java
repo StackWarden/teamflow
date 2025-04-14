@@ -195,37 +195,6 @@ public class TaskScreen implements Screen {
             System.out.println("You have been added to this task");
         }
     }
-    private void AssignedUsers() {
-        String sql = "SELECT user.id, user.username " +
-                "FROM user_task " +
-                "JOIN user ON user.id = user_task.user_id " +
-                "WHERE user_task.task_id = ?";
-
-        try (
-                Connection conn = DatabaseConnection.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql)
-        ) {
-            stmt.setInt(1, projectController.getCurrentTask().getId());
-
-            ResultSet rs = stmt.executeQuery();
-            System.out.println("Assigned Users:");
-
-            int count = 0;
-            while (rs.next()) {
-                int userId = rs.getInt("id");
-                String username = rs.getString("username");
-                System.out.println(userId + ". " + username);
-                count++;
-            }
-
-            if (count == 0) {
-                System.out.println("No users assigned to this task.");
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
 
 
     private void removeUserFromTask() {
@@ -235,7 +204,7 @@ public class TaskScreen implements Screen {
         );
         if (isScrumMaster) {
 
-            AssignedUsers();
+            projectController.AssignedUsers();
 
             System.out.print("Which user do you want to remove from the task? ");
 
