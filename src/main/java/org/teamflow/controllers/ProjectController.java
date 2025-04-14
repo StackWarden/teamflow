@@ -47,7 +47,8 @@ public class ProjectController {
     public Project getCurrentProject() {
         return currentProject;
     }
-    public int getCurrentProjectId() { return currentProject.getId();}
+    public int getCurrentProjectId() { return currentProject.getId(); }
+    public int getCurrentTaskId() { return currentTask.getId(); }
 
     public ProjectCreationResult createProject(String name, String description) {
         String sql = "INSERT INTO Project (name, description) VALUES (?, ?)";
@@ -99,6 +100,10 @@ public class ProjectController {
 
     public void removeUserFromProject(int userId) {
         currentProject.deleteUserFromProject(userId);
+    }
+
+    public void assignUserToTask(int userId) {
+        currentTask.assignUserToTask(userId);
     }
 
     public boolean editProject(int projectId, String newName, String newDescription) {
