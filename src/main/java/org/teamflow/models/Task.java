@@ -80,7 +80,5 @@ public class Task {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-
     }
-
 }
