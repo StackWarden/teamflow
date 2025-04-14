@@ -9,6 +9,7 @@ import org.teamflow.enums.ScreenType;
 import org.teamflow.interfaces.Screen;
 import org.teamflow.models.Chatroom;
 import org.teamflow.models.Task;
+import org.teamflow.models.User;
 import org.teamflow.services.UserProjectRoleService;
 
 import java.util.ArrayList;
@@ -112,9 +113,10 @@ public class TaskScreen implements Screen {
             switch (input) {
                 case "1" -> editTask();
                 case "2" -> assignUser();
-                case "3" -> listChatrooms();
-                case "4" -> createChatroom();
-                case "5" -> {
+                case "3" -> removeUserFromTask();
+                case "4" -> listChatrooms();
+                case "5" -> createChatroom();
+                case "6" -> {
                     if (UserController.isScrumMaster()) {
                         deleteTask();
                     }
@@ -132,8 +134,9 @@ public class TaskScreen implements Screen {
         System.out.println("\n===== Task: " + title + ", Status: " + status +" =====");
         System.out.println("1. Edit task");
         System.out.println("2. Assign user");
-        System.out.println("3. View chatrooms");
-        System.out.println("4. Create chatroom");
+        System.out.println("3. Remove user from task");
+        System.out.println("4. View chatrooms");
+        System.out.println("5. Create chatroom");
 
         boolean isScrumMaster = UserProjectRoleService.isScrumMaster(
                 userController.getUserId(),
@@ -190,6 +193,39 @@ public class TaskScreen implements Screen {
             System.out.println("You have been added to this task");
         }
     }
+    private void listMembers() {
+        List<User> members = projectController.getProjectMembers(projectController.getCurrentTaskId());
+    }
+
+    private void removeUserFromTask() {
+        boolean isScrumMaster = UserProjectRoleService.isScrumMaster(
+                userController.getUserId(),
+                projectController.getCurrentProjectId()
+        );
+        if (isScrumMaster) {
+
+            listMembers();
+
+            System.out.print("Which user do you want to remove from the task? ");
+
+            int userId;
+            try {
+                userId = Integer.parseInt(scanner.nextLine());
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter a valid user ID.");
+                return;
+            }
+
+            if (userId == userController.getLoggedUser().getId()) {
+                System.out.println("You cannot remove yourself.");
+                return;
+
+            }
+
+            projectController.removeUserFromTask(userId);
+        }
+    }
+
 
     private void listChatrooms() {
         ChatController chatController = screenManager.getChatController();
