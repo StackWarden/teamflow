@@ -102,6 +102,8 @@ public class ProjectController {
         currentProject.deleteUserFromProject(userId);
     }
 
+    public void removeUserFromTask(int userId) {currentTask.deleteUserFromTask(userId);}
+
     public void assignUserToTask(int userId) {
         currentTask.assignUserToTask(userId);
     }
@@ -357,7 +359,7 @@ public class ProjectController {
         try (
                 PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)
         ) {
-            stmt.setInt(1, currentTask.getId());
+            stmt.setInt(1, getCurrentUserStory().getId());
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 tasks.add(rs.getInt("id") + ": " + rs.getString("title") + ": " + rs.getString("status"));
@@ -384,4 +386,37 @@ public class ProjectController {
         }
         return tasks;
     }
+
+    public void assignedUsers() {
+        String sql = "SELECT user.id, user.username " +
+                "FROM user_task " +
+                "JOIN user ON user.id = user_task.user_id " +
+                "WHERE user_task.task_id = ?";
+
+        try (
+                Connection conn = DatabaseConnection.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)
+        ) {
+            stmt.setInt(1, getCurrentTask().getId());
+
+            ResultSet rs = stmt.executeQuery();
+            System.out.println("Assigned Users:");
+
+            int count = 0;
+            while (rs.next()) {
+                int userId = rs.getInt("id");
+                String username = rs.getString("username");
+                System.out.println(userId + ". " + username);
+                count++;
+            }
+
+            if (count == 0) {
+                System.out.println("No users assigned to this task.");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
 }
