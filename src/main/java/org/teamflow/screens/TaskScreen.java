@@ -187,7 +187,7 @@ public class TaskScreen implements Screen {
             }
         } else {
             projectController.assignUserToTask(task.getId(), userController.getUserId());
-            System.out.println("You have added to this task");
+            System.out.println("You have been added to this task");
         }
     }
 
