@@ -4,16 +4,13 @@ import org.teamflow.ScreenManager;
 import org.teamflow.controllers.ChatController;
 import org.teamflow.controllers.ProjectController;
 import org.teamflow.controllers.UserController;
-import org.teamflow.database.DatabaseConnection;
 import org.teamflow.enums.ChatroomLinkType;
 import org.teamflow.enums.ScreenType;
 import org.teamflow.interfaces.Screen;
 import org.teamflow.models.Chatroom;
 import org.teamflow.models.Task;
-import org.teamflow.models.User;
 import org.teamflow.services.UserProjectRoleService;
 
-import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -119,7 +116,7 @@ public class TaskScreen implements Screen {
                 case "4" -> listChatrooms();
                 case "5" -> createChatroom();
                 case "6" -> {
-                    if (UserController.isScrumMaster()) {
+                    if (userController.isScrumMaster(projectController.getCurrentProjectId())) {
                         deleteTask();
                     }
                 }
@@ -270,7 +267,7 @@ public class TaskScreen implements Screen {
     }
 
     private void deleteTask() {
-        if (!UserController.isScrumMaster()) {
+        if (!userController.isScrumMaster(projectController.getCurrentProjectId())) {
             System.out.println("Only Scrum Masters can delete tasks.");
         }
 

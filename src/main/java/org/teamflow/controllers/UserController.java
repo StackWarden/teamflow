@@ -168,9 +168,7 @@ public class UserController {
         return User.getById(userId);
     }
 
-    public static boolean isScrumMaster() {
-        UserController userController = new UserController();
-        ProjectController projectController = new ProjectController();
-        return org.teamflow.services.UserProjectRoleService.isScrumMaster(userController.getUserId(), projectController.getCurrentProjectId());
+    public boolean isScrumMaster(int projectId) {
+        return org.teamflow.services.UserProjectRoleService.isScrumMaster(getUserId(), projectId);
     }
 }
