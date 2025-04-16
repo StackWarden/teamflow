@@ -143,7 +143,7 @@ public class TaskScreen implements Screen {
         );
 
         if (isScrumMaster) {
-            System.out.println("5. Delete task");
+            System.out.println("6. Delete task");
         }
 
         System.out.println("0. Back");
