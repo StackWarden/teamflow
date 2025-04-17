@@ -4,6 +4,8 @@ import org.teamflow.database.DatabaseConnection;
 import org.teamflow.models.Project;
 import org.teamflow.models.User;
 import org.teamflow.models.Task;
+import org.teamflow.services.UserProjectRoleService;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -169,6 +171,6 @@ public class UserController {
     }
 
     public boolean isScrumMaster(int projectId) {
-        return org.teamflow.services.UserProjectRoleService.isScrumMaster(getUserId(), projectId);
+        return UserProjectRoleService.isScrumMaster(getUserId(), projectId);
     }
 }
