@@ -138,8 +138,17 @@ public class EpicScreen implements Screen {
     }
 
     private void editEpic() {
-        System.out.println("[TODO] Edit epic logic");
-        // Bijvoorbeeld: wijzig titel, sla opnieuw op
+        String title;
+        System.out.print("Enter the new title for the epic you want to edit: ");
+        title = scanner.nextLine().trim();
+
+        if (title.isEmpty()) {
+            System.out.println("Title cannot be empty. Please try again.");
+            return;
+        }
+
+        System.out.println("Editing epic with new title: " + title);
+        projectController.editEpic(title);
     }
 
     private void deleteEpic() {
