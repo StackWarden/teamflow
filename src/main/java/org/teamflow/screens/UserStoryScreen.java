@@ -115,7 +115,7 @@ public class UserStoryScreen implements Screen {
                 case "3" -> createChatroom();
                 case "4" -> editUserStory();
                 case "5" -> {
-                    if (UserController.isScrumMaster()) {
+                    if (userController.isScrumMaster(projectController.getCurrentProjectId())) {
                         deleteUserStory();
                     }
                 }
@@ -203,7 +203,7 @@ public class UserStoryScreen implements Screen {
     }
 
     private void deleteUserStory() {
-        if (!UserController.isScrumMaster()) {
+        if (!userController.isScrumMaster(projectController.getCurrentProjectId())) {
             System.out.println("Only Scrum Masters can delete stories.");
         }
 

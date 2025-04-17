@@ -99,7 +99,7 @@ public class EpicScreen implements Screen {
                 case "1" -> screenManager.switchTo(ScreenType.USER_STORY);
                 case "2" -> editEpic();
                 case "3" -> {
-                    if (UserController.isScrumMaster()) {
+                    if (userController.isScrumMaster(projectController.getCurrentProjectId())) {
                         deleteEpic();
                     }
                 }
@@ -152,7 +152,7 @@ public class EpicScreen implements Screen {
     }
 
     private void deleteEpic() {
-        if (!UserController.isScrumMaster()) {
+        if (!userController.isScrumMaster(projectController.getCurrentProjectId())) {
             System.out.println("Only Scrum Masters can delete epics.");
         }
 
@@ -163,7 +163,7 @@ public class EpicScreen implements Screen {
         }
 
         assert epic != null;
-        projectController.deleteById("Epic", epic.getId());
+        epic.delete();
     }
 
     private void listEpicChatrooms() {

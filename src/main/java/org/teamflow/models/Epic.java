@@ -1,5 +1,11 @@
 package org.teamflow.models;
 
+import org.teamflow.database.DatabaseConnection;
+
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.Set;
+
 public class Epic {
     private int id;
     private int projectId;
@@ -33,6 +39,19 @@ public class Epic {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public void delete() {
+        String sql = "DELETE FROM Epic WHERE id = ?";
+
+        try (
+                PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)
+        ) {
+            stmt.setInt(1, this.id);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println("Failed to delete from epic: " + e.getMessage());
+        }
     }
 
     public void setProjectId(int projectId) {
