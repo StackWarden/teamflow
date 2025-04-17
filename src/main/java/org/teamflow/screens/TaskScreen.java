@@ -110,7 +110,13 @@ public class TaskScreen implements Screen {
             String input = scanner.nextLine();
 
             switch (input) {
-                case "1" -> editTask();
+                case "1" -> {
+                    if (userController.isScrumMaster(projectController.getCurrentProjectId())) {
+                        editTask();
+                    } else {
+                        System.out.println("Only a Scrum Master can edit an Epic.");
+                    }
+                }
                 case "2" -> assignUser();
                 case "3" -> removeUserFromTask();
                 case "4" -> listChatrooms();
@@ -118,6 +124,8 @@ public class TaskScreen implements Screen {
                 case "6" -> {
                     if (userController.isScrumMaster(projectController.getCurrentProjectId())) {
                         deleteTask();
+                    } else {
+                        System.out.println("Only a Scrum Master can edit a Task.");
                     }
                 }
                 case "0" -> running = false;

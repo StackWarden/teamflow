@@ -113,10 +113,18 @@ public class UserStoryScreen implements Screen {
                 case "1" -> screenManager.switchTo(ScreenType.TASK);
                 case "2" -> listChatrooms();
                 case "3" -> createChatroom();
-                case "4" -> editUserStory();
+                case "4" -> {
+                    if (userController.isScrumMaster(projectController.getCurrentProjectId())) {
+                        editUserStory();
+                    } else {
+                        System.out.println("Only a Scrum Master can edit an Epic.");
+                    }
+                }
                 case "5" -> {
                     if (userController.isScrumMaster(projectController.getCurrentProjectId())) {
                         deleteUserStory();
+                    } else {
+                        System.out.println("Only a Scrum Master can edit a User Story.");
                     }
                 }
                 case "0" -> running = false;
