@@ -277,7 +277,7 @@ public class ProjectController {
         return userStories;
     }
 
-    public void createEpic (String title) {
+    public boolean createEpic (String title) {
         String sql = "INSERT INTO Epic (title, project_id) VALUES (?,?)";
         try (
                 PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)
@@ -288,9 +288,10 @@ public class ProjectController {
         } catch (SQLException e) {
             System.out.println("Failed to create epic: " + e.getMessage());
         }
+        return false;
     }
 
-    public void editEpic(String title) {
+    public boolean editEpic(String title) {
         String sql = "UPDATE Epic SET title = ? WHERE id = ?";
         try (
                 PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)
@@ -303,6 +304,7 @@ public class ProjectController {
         } catch (SQLException e) {
             System.out.println("Failed to update epic: " + e.getMessage());
         }
+        return false;
     }
 
     public List<Epic> getEpics() {

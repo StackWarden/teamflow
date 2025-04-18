@@ -7,17 +7,21 @@ import org.junit.jupiter.api.Test;
 import org.teamflow.controllers.ProjectController;
 import org.teamflow.controllers.UserController;
 import org.teamflow.database.DatabaseConnection;
+import org.teamflow.models.Epic;
 import org.teamflow.models.Project;
 import org.teamflow.models.ProjectCreationResult;
 import org.teamflow.services.UserProjectRoleService;
 
 import java.sql.*;
+import java.util.List;
+import java.util.logging.ErrorManager;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ProjectControllerTest {
     private static ProjectController controller;
     private static UserController userController;
+    private Epic currentProject;
 
     @BeforeAll
     public static void setup() {
@@ -160,4 +164,85 @@ public class ProjectControllerTest {
         }
     }
 
+    public boolean createEpic(String title) {
+        if (title == null || title.trim().isEmpty()) {
+            throw new IllegalArgumentException("Title cannot be null or empty");
+        }
+
+        String sql = "INSERT INTO Epic (title, project_id) VALUES (?, ?)";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            conn.setAutoCommit(false); // Start transaction
+
+            stmt.setString(1, title);
+            stmt.setInt(2, currentProject.getId());
+
+            int rowsAffected = stmt.executeUpdate();
+            conn.commit(); // Commit transaction
+
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            fail("Database operation failed" + e.getMessage());
+        }
+        return false;
+    }
+
+    @Test
+    public void testUpdateEpicName() {
+        // Zorg ervoor dat currentProject wordt ingesteld
+        currentProject = new Epic();
+        currentProject.setId(1);
+
+        String originalTitle = "Original Epic";
+        String updatedTitle = "Updated Epic";
+
+        // Create the epic
+        boolean creationResult = createEpic(originalTitle);
+        assertTrue(creationResult, "Epic should be created successfully");
+
+        // Get the epic ID from the created epic
+        int epicId = -1;
+        String selectEpicIdSql = "SELECT id FROM Epic WHERE title = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement selectStmt = conn.prepareStatement(selectEpicIdSql)) {
+            selectStmt.setString(1, originalTitle);
+            ResultSet rs = selectStmt.executeQuery();
+            if (rs.next()) {
+                epicId = rs.getInt("id");
+            }
+            rs.close();
+        } catch (Exception e) {
+            fail("Failed to retrieve the epic ID: " + e.getMessage());
+        }
+
+        assertTrue(epicId > 0, "Epic ID should be valid");
+
+        // Update the epic title
+        String updateSql = "UPDATE Epic SET title = ? WHERE id = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
+            updateStmt.setString(1, updatedTitle);
+            updateStmt.setInt(2, epicId);
+            int rowsUpdated = updateStmt.executeUpdate();
+            assertEquals(1, rowsUpdated, "One row should be updated");
+        } catch (Exception e) {
+            fail("Failed to update the epic title: " + e.getMessage());
+        }
+
+        // Verify the epic title was updated
+        String selectSql = "SELECT title FROM Epic WHERE id = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement selectStmt = conn.prepareStatement(selectSql)) {
+            selectStmt.setInt(1, epicId);
+            ResultSet rs = selectStmt.executeQuery();
+            if (rs.next()) {
+                assertEquals(updatedTitle, rs.getString("title"), "Epic title should be updated");
+            } else {
+                fail("Epic should exist in the database");
+            }
+            rs.close();
+        } catch (Exception e) {
+            fail("Failed to verify the epic title: " + e.getMessage());
+        }
+    }
 }
