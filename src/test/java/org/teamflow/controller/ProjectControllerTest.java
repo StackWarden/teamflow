@@ -7,11 +7,14 @@ import org.junit.jupiter.api.Test;
 import org.teamflow.controllers.ProjectController;
 import org.teamflow.controllers.UserController;
 import org.teamflow.database.DatabaseConnection;
+import org.teamflow.models.Epic;
 import org.teamflow.models.Project;
 import org.teamflow.models.ProjectCreationResult;
+import org.teamflow.models.UserStory;
 import org.teamflow.services.UserProjectRoleService;
 
 import java.sql.*;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -160,4 +163,123 @@ public class ProjectControllerTest {
         }
     }
 
+    @Test
+    void testCreateEditDeleteProject() {
+        String initialName = "Test Project";
+        String initialDescription = "Test Desc";
+        String updatedName = "Updated Project";
+        String updatedDescription = "Updated Desc";
+
+        // Create Project
+        var result = controller.createProject(initialName, initialDescription);
+        assertEquals(1, result.getStatus());
+        Project created = result.getProject();
+        assertNotNull(created);
+        assertEquals(initialName, created.getName());
+
+        int createdId = created.getId();
+
+        // Edit Project
+        boolean updated = controller.editProject(createdId, updatedName, updatedDescription);
+        assertTrue(updated);
+
+        Project fetched = controller.getProjectById(createdId);
+        assertNotNull(fetched);
+        assertEquals(updatedName, fetched.getName());
+
+        // Delete Project
+        controller.setCurrentProject(createdId);
+        controller.deleteProject();
+
+        Project deleted = controller.getProjectById(createdId);
+        assertNull(deleted);
+    }
+
+    @Test
+    void testCreateEditListAndDeleteUserStory_UsingController() {
+        ProjectController controller = new ProjectController();
+
+        // Setup
+        int testProjectId = 1;
+        int testEpicId = 1;
+        String initialDescription = "testdescription";
+        String updatedDescription = "updateddescription";
+
+        assertTrue(controller.setCurrentProject(testProjectId), "Could not set current project");
+        Epic epic = controller.getEpics().stream()
+                .filter(e -> e.getId() == testEpicId)
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("Epic not found"));
+
+        controller.setCurrentEpic(epic);
+
+        // Create
+        controller.createUserStory(initialDescription);
+        List<UserStory> stories = controller.getUserStories();
+        UserStory createdStory = stories.stream()
+                .filter(s -> s.getDescription().equals(initialDescription))
+                .findFirst()
+                .orElse(null);
+
+        assertNotNull(createdStory, "Created user story should be in list");
+
+        int storyId = createdStory.getId();
+
+        // Edit
+        controller.editUserStory(updatedDescription, storyId);
+        UserStory updated = controller.getUserStories().stream()
+                .filter(s -> s.getId() == storyId)
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("Updated user story not found"));
+
+        assertEquals(updatedDescription, updated.getDescription(), "Description should be updated");
+
+        // Delete
+        controller.deleteById("UserStory", storyId);
+        List<UserStory> afterDelete = controller.getUserStories();
+        boolean stillExists = afterDelete.stream().anyMatch(s -> s.getId() == storyId);
+        assertFalse(stillExists, "User story should be deleted");
+
+        System.out.println("Created, edited, verified, and deleted UserStory with ID: " + storyId);
+    }
+
+    @Test
+    public void testUpdateEpicName_WithController() {
+        ProjectController controller = new ProjectController();
+
+        // Zorg dat je een bestaand project gebruikt voor de test
+        int projectId = 1;
+        assertTrue(controller.setCurrentProject(projectId), "Project should be set");
+
+        String originalTitle = "Original Epic";
+        String updatedTitle = "Updated Epic";
+
+        // Maak een nieuwe epic aan
+        controller.createEpic(originalTitle);
+
+        // Haal de epic op
+        Epic originalEpic = controller.getEpics().stream()
+                .filter(e -> e.getTitle().equals(originalTitle))
+                .findFirst()
+                .orElse(null);
+
+        assertNotNull(originalEpic, "Epic should have been created");
+
+        // Zet als current epic
+        controller.setCurrentEpic(originalEpic);
+
+        // Update de titel via controller
+        controller.editEpic(updatedTitle);
+
+        // Haal opnieuw de epic lijst op
+        Epic updatedEpic = controller.getEpics().stream()
+                .filter(e -> e.getId() == originalEpic.getId())
+                .findFirst()
+                .orElse(null);
+
+        assertNotNull(updatedEpic, "Updated epic should still exist");
+        assertEquals(updatedTitle, updatedEpic.getTitle(), "Epic title should be updated");
+
+        System.out.println("Epic updated from '" + originalTitle + "' to '" + updatedTitle + "'");
+    }
 }
