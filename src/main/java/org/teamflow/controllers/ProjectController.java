@@ -104,8 +104,16 @@ public class ProjectController {
 
     public void removeUserFromTask(int userId) {currentTask.deleteUserFromTask(userId);}
 
-    public void assignUserToTask(int userId) {
-        currentTask.assignUserToTask(userId);
+    public int assignUserToTask(int userId) {
+        try {
+            currentTask.assignUserToTask(userId);
+            return 1;
+        } catch (SQLException e) {
+            if (e.getErrorCode() == 1062) {
+                return 1062;
+            }
+            return 0;
+        }
     }
 
     public boolean editProject(int projectId, String newName, String newDescription) {

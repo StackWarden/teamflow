@@ -11,18 +11,10 @@ import org.teamflow.services.UserProjectRoleService;
 import java.util.List;
 import java.util.Scanner;
 
-public class ProjectMembersScreen implements Screen {
+public class ProjectMembersScreen extends Screen {
 
-    private final Scanner scanner;
-    private final ScreenManager screenManager;
-    private final UserController userController;
-    private final ProjectController projectController;
-
-    public ProjectMembersScreen(Scanner scanner, ProjectController projectController, UserController userController, ScreenManager screenManager) {
-        this.scanner = scanner;
-        this.screenManager = screenManager;
-        this.userController = userController;
-        this.projectController = projectController;
+    public ProjectMembersScreen(ScreenManager screenManager) {
+        super(screenManager);
     }
 
     @Override
@@ -30,6 +22,7 @@ public class ProjectMembersScreen implements Screen {
         boolean running = true;
 
         while (running) {
+            printBreadcrumb("Dashboard", "Project", "Project Members");
             printMenu();
 
             String input = scanner.nextLine();
@@ -48,7 +41,7 @@ public class ProjectMembersScreen implements Screen {
     }
 
     private void printMenu() {
-        System.out.println("\n===== Project Members =====");
+        System.out.println();
         System.out.println("1. View all members");
         System.out.println("2. Add member to project");
         System.out.println("3. Change member role");
@@ -60,7 +53,7 @@ public class ProjectMembersScreen implements Screen {
         List<User> members = projectController.getProjectMembers(projectController.getCurrentProjectId());
 
         if (members.isEmpty()) {
-            System.out.println("No members found in this project.");
+            setAlertMessage("No members found in this project.");
             return;
         }
 
@@ -77,7 +70,7 @@ public class ProjectMembersScreen implements Screen {
         var allUsers = userController.getAllUsers();
 
         if (allUsers.isEmpty()) {
-            System.out.println("No users found.");
+            setAlertMessage("No users found.");
             return;
         }
 
@@ -94,7 +87,7 @@ public class ProjectMembersScreen implements Screen {
             int selectedIndex = Integer.parseInt(input) - 1;
 
             if (selectedIndex < 0 || selectedIndex >= allUsers.size()) {
-                System.out.println("Invalid selection.");
+                setAlertMessage("Invalid selection.");
                 return;
             }
 
@@ -115,13 +108,13 @@ public class ProjectMembersScreen implements Screen {
             );
 
             if (success) {
-                System.out.println("User added to project successfully.");
+                setAlertMessage("User added to project successfully.");
             } else {
-                System.out.println("Failed to add user to project.");
+                setAlertMessage("Failed to add user to project.");
             }
 
         } catch (NumberFormatException e) {
-            System.out.println("Invalid input. Please enter a valid number.");
+            setAlertMessage("Invalid input. Please enter a valid number.");
         }
     }
 
@@ -136,19 +129,19 @@ public class ProjectMembersScreen implements Screen {
         try {
             userId = Integer.parseInt(scanner.nextLine());
         } catch (NumberFormatException e) {
-            System.out.println("Invalid user ID.");
+            setAlertMessage("Invalid user ID.");
             return;
         }
 
         User selectedUser = userController.getUserById(userId);
         if (selectedUser == null) {
-            System.out.println("User not found.");
+            setAlertMessage("User not found.");
             return;
         }
 
         if (selectedUser.getId() == userController.getLoggedUser().getId())
         {
-            System.out.println("You can not change your own role.");
+            setAlertMessage("You can not change your own role.");
             return;
         }
 
@@ -163,17 +156,17 @@ public class ProjectMembersScreen implements Screen {
         try {
             roleIndex = Integer.parseInt(scanner.nextLine()) - 1;
             if (roleIndex < 0 || roleIndex >= roles.size()) {
-                System.out.println("Invalid role selection.");
+                setAlertMessage("Invalid role selection.");
                 return;
             }
         } catch (NumberFormatException e) {
-            System.out.println("Please enter a valid number.");
+            setAlertMessage("Please enter a valid number.");
             return;
         }
 
         Role selectedRole = roles.get(roleIndex);
         projectController.changeUserRoleInProject(userId, selectedRole);
-        System.out.println("Role updated for user " + selectedUser.getUsername());
+        setAlertMessage("Role updated for user " + selectedUser.getUsername());
     }
 
     private void removeMember() {
@@ -187,12 +180,12 @@ public class ProjectMembersScreen implements Screen {
         try {
             userId = Integer.parseInt(scanner.nextLine());
         } catch (NumberFormatException e) {
-            System.out.println("Invalid input. Please enter a valid user ID.");
+            setAlertMessage("Invalid input. Please enter a valid user ID.");
             return;
         }
 
         if (userId == userController.getLoggedUser().getId()) {
-            System.out.println("You cannot remove yourself.");
+            setAlertMessage("You cannot remove yourself.");
             return;
         }
 
@@ -202,7 +195,7 @@ public class ProjectMembersScreen implements Screen {
     private boolean isScrumMaster() {
         boolean result = UserProjectRoleService.isScrumMaster(userController.getUserId(), projectController.getCurrentProjectId());
         if (!result) {
-            System.out.println("Only Scrum Masters can perform this action.");
+            setAlertMessage("Only Scrum Masters can perform this action.");
         }
         return result;
     }

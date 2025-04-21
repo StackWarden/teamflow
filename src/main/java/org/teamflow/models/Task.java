@@ -73,22 +73,19 @@ public class Task {
                 '}';
     }
 
-    public void assignUserToTask(int userId) {
+    public void assignUserToTask(int userId) throws SQLException {
         if (id <= 0) {
             System.out.println("Invalid task ID.");
             return;
         }
 
         String sql = "INSERT INTO User_Task (task_id, user_id) VALUES (?, ?)";
-        try {
-            PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql);
-            stmt.setInt(1, id);
-            stmt.setInt(2, userId);
-            stmt.execute();
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        }
+        PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql);
+        stmt.setInt(1, id);
+        stmt.setInt(2, userId);
+        stmt.execute();
     }
+
     public void assignedUsers(int userId) {
         if (id <= 0) {
             System.out.println("Invalid task ID.");

@@ -15,18 +15,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-public class TaskScreen implements Screen {
+public class TaskScreen extends Screen {
 
-    private final Scanner scanner;
-    private final ProjectController projectController;
-    private final UserController userController;
-    private final ScreenManager screenManager;
-
-    public TaskScreen(Scanner scanner, ProjectController projectController, UserController userController, ScreenManager screenManager) {
-        this.scanner = scanner;
-        this.projectController = projectController;
-        this.userController = userController;
-        this.screenManager = screenManager;
+    public TaskScreen(ScreenManager screenManager) {
+        super(screenManager);
     }
 
     @Override
@@ -34,6 +26,7 @@ public class TaskScreen implements Screen {
         boolean running = true;
 
         while (running) {
+            printBreadcrumb("Dashboard", "Project", "Epic", "UserStory", "Task");
             printMenu();
             String input = scanner.nextLine();
 
@@ -45,14 +38,15 @@ public class TaskScreen implements Screen {
                     System.out.println("Returning to story...");
                     running = false;
                 }
-                default -> System.out.println("Invalid input.");
+                default -> setAlertMessage("Invalid input.");
             }
         }
     }
 
     private void printMenu() {
-        System.out.println("\n===== Tasks for Story: " +
-                projectController.getCurrentUserStory().getDescription() + " =====");
+        System.out.println("Tasks for Story: " +
+                projectController.getCurrentUserStory().getDescription());
+        System.out.println();
         System.out.println("1. Create task");
         System.out.println("2. View tasks");
         System.out.println("3. Select task");
@@ -86,11 +80,11 @@ public class TaskScreen implements Screen {
         try {
             roleIndex = Integer.parseInt(scanner.nextLine()) - 1;
             if (roleIndex < 0 || roleIndex >= tasks.size()) {
-                System.out.println("Invalid task selection.");
+                setAlertMessage("Invalid task selection.");
                 return;
             }
         } catch (NumberFormatException e) {
-            System.out.println("Please enter a valid number.");
+            setAlertMessage("Please enter a valid number.");
             return;
         }
 
@@ -106,6 +100,7 @@ public class TaskScreen implements Screen {
         boolean running = true;
 
         while (running) {
+            printBreadcrumb("Dashboard", "Project", "Epic", "UserStory", "Task");
             printTaskDetailMenu();
             String input = scanner.nextLine();
 
@@ -114,7 +109,7 @@ public class TaskScreen implements Screen {
                     if (userController.isScrumMaster(projectController.getCurrentProjectId())) {
                         editTask();
                     } else {
-                        System.out.println("Only a Scrum Master can edit an Epic.");
+                        setAlertMessage("Only a Scrum Master can edit an Epic.");
                     }
                 }
                 case "2" -> assignUser();
@@ -125,11 +120,11 @@ public class TaskScreen implements Screen {
                     if (userController.isScrumMaster(projectController.getCurrentProjectId())) {
                         deleteTask();
                     } else {
-                        System.out.println("Only a Scrum Master can edit a Task.");
+                        setAlertMessage("Only a Scrum Master can edit a Task.");
                     }
                 }
                 case "0" -> running = false;
-                default -> System.out.println("Invalid input.");
+                default -> setAlertMessage("Invalid input.");
             }
         }
     }
@@ -138,7 +133,8 @@ public class TaskScreen implements Screen {
         Task task = projectController.getCurrentTask();
         String status = task.getStatus() != null ? task.getStatus() : "Unknown status";
         String title = (task != null) ? task.getTitle() : "[No task selected]";
-        System.out.println("\n===== Task: " + title + ", Status: " + status +" =====");
+        System.out.println(title + "( " + status + " )");
+        System.out.println();
         System.out.println("1. Edit task");
         System.out.println("2. Assign user");
         System.out.println("3. Remove user from task");
@@ -160,7 +156,7 @@ public class TaskScreen implements Screen {
     private void editTask() {
         Task task = projectController.getCurrentTask();
         if (task == null) {
-            System.out.println("No task selected.");
+            setAlertMessage("No task selected.");
             return;
         }
 
@@ -173,7 +169,7 @@ public class TaskScreen implements Screen {
     private void assignUser() {
         Task task = projectController.getCurrentTask();
         if (task == null) {
-            System.out.println("No task selected.");
+           setAlertMessage("No task selected.");
             return;
         }
 
@@ -192,12 +188,18 @@ public class TaskScreen implements Screen {
             int index = Integer.parseInt(scanner.nextLine()) - 1;
             if (index >= 0 && index < users.size()) {
                 var selectedUser = users.get(index);
-                projectController.assignUserToTask(selectedUser.getId());
-                System.out.println(selectedUser.getUsername() + " has been assigned.");
+                if (projectController.assignUserToTask(selectedUser.getId()) == 1){
+                    setAlertMessage(selectedUser.getUsername() + " has been assigned.");
+                } else {
+                    setAlertMessage(selectedUser.getUsername() + " has already been assigned.");
+                }
             }
         } else {
-            projectController.assignUserToTask(userController.getUserId());
-            System.out.println("You have been added to this task");
+            if (projectController.assignUserToTask(userController.getUserId()) == 1){
+                setAlertMessage("You have been assigned to this task.");
+            } else {
+                setAlertMessage("You were already assigned to this task.");
+            }
         }
     }
 
@@ -218,12 +220,12 @@ public class TaskScreen implements Screen {
             try {
                 userId = Integer.parseInt(scanner.nextLine());
             } catch (NumberFormatException e) {
-                System.out.println("Invalid input. Please enter a valid user ID.");
+                setAlertMessage("Invalid input. Please enter a valid user ID.");
                 return;
             }
 
             if (userId == userController.getLoggedUser().getId()) {
-                System.out.println("You cannot remove yourself.");
+                setAlertMessage("You cannot remove yourself.");
                 return;
 
             }
@@ -247,11 +249,11 @@ public class TaskScreen implements Screen {
         try {
             roleIndex = Integer.parseInt(scanner.nextLine()) - 1;
             if (roleIndex < 0 || roleIndex >= chatrooms.size()) {
-                System.out.println("Invalid chatroom selection.");
+                setAlertMessage("Invalid chatroom selection.");
                 return;
             }
         } catch (NumberFormatException e) {
-            System.out.println("Please enter a valid number.");
+            setAlertMessage("Please enter a valid number.");
             return;
         }
 
@@ -276,16 +278,17 @@ public class TaskScreen implements Screen {
 
     private void deleteTask() {
         if (!userController.isScrumMaster(projectController.getCurrentProjectId())) {
-            System.out.println("Only Scrum Masters can delete tasks.");
+            setAlertMessage("Only Scrum Masters can delete tasks.");
+            return;
         }
 
         Task task = projectController.getCurrentTask();
 
         if (task == null) {
-            System.out.println("No task selected.");
+            setAlertMessage("No task selected.");
+            return;
         }
 
-        assert task != null;
         projectController.deleteById("Task", task.getId());
     }
 }

@@ -266,8 +266,6 @@ public class Chatroom {
                 chatroom.setId(chatroomId);
 
                 int linkedId = chatroom.getLinkedEntityId();
-                System.out.println("Linking to epic ID: " + chatroom.getLinkedEntityId());
-
 
                 switch (chatroom.getLinkType()) {
                     case EPIC -> linkTo("Epic_Chatroom", "epic_id", linkedId, chatroomId);

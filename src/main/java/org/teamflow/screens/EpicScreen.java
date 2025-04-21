@@ -14,18 +14,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-public class EpicScreen implements Screen {
+public class EpicScreen extends Screen {
 
-    private final Scanner scanner;
-    private final ProjectController projectController;
-    private final UserController userController;
-    private final ScreenManager screenManager;
-
-    public EpicScreen(Scanner scanner, ProjectController projectController, UserController userController, ScreenManager screenManager) {
-        this.scanner = scanner;
-        this.projectController = projectController;
-        this.userController = userController;
-        this.screenManager = screenManager;
+    public EpicScreen(ScreenManager screenManager) {
+        super(screenManager);
     }
 
     @Override
@@ -33,6 +25,7 @@ public class EpicScreen implements Screen {
         boolean running = true;
 
         while (running) {
+            printBreadcrumb("Project", "Epic");
             printMenu();
             String input = scanner.nextLine();
 
@@ -44,13 +37,13 @@ public class EpicScreen implements Screen {
                     System.out.println("Returning to project screen...");
                     running = false;
                 }
-                default -> System.out.println("Invalid input. Try again.");
+                default -> setAlertMessage("Invalid input. Try again.");
             }
         }
     }
 
     private void printMenu() {
-        System.out.println("\n===== Epic Menu =====");
+        System.out.println();
         System.out.println("1. Create new epic");
         System.out.println("2. View epics");
         System.out.println("3. Select epic");
@@ -68,11 +61,11 @@ public class EpicScreen implements Screen {
         try {
             roleIndex = Integer.parseInt(scanner.nextLine()) - 1;
             if (roleIndex < 0 || roleIndex >= epics.size()) {
-                System.out.println("Invalid epic selection.");
+                setAlertMessage("Invalid epic selection.");
                 return;
             }
         } catch (NumberFormatException e) {
-            System.out.println("Please enter a valid number.");
+            setAlertMessage("Please enter a valid number.");
             return;
         }
 
@@ -87,6 +80,7 @@ public class EpicScreen implements Screen {
     private void showEpicDetailsMenu() {
         boolean running = true;
         while (running) {
+            printBreadcrumb("Dashboard", "Project", "Epic");
             printEpicDetailsMenu();
             String input = scanner.nextLine();
 
@@ -96,7 +90,7 @@ public class EpicScreen implements Screen {
                     if (userController.isScrumMaster(projectController.getCurrentProjectId())) {
                     editEpic();
                     } else {
-                        System.out.println("Only a Scrum Master can edit an Epic.");
+                        setAlertMessage("Only a Scrum Master can edit an Epic.");
                     }
                 }
                 case "3" -> {
@@ -104,19 +98,20 @@ public class EpicScreen implements Screen {
                         deleteEpic();
                     }
                     else {
-                        System.out.println("Only a Scrum Master can delete an Epic.");
+                        setAlertMessage("Only a Scrum Master can delete an Epic.");
                     }
                 }
                 case "4" -> listEpicChatrooms();
                 case "5" -> createEpicChatroom();
                 case "0" -> running = false;
-                default -> System.out.println("Invalid input.");
+                default -> setAlertMessage("Invalid input.");
             }
         }
     }
 
     private void printEpicDetailsMenu() {
-        System.out.println("\n===== Epic: " + projectController.getCurrentEpic().getTitle() + " =====");
+        System.out.println(projectController.getCurrentEpic().getTitle());
+        System.out.println();
         System.out.println("1. View user stories");
         System.out.println("2. Edit epic");
         System.out.println("3. Delete epic");
@@ -157,16 +152,16 @@ public class EpicScreen implements Screen {
 
     private void deleteEpic() {
         if (!userController.isScrumMaster(projectController.getCurrentProjectId())) {
-            System.out.println("Only Scrum Masters can delete epics.");
-
+            setAlertMessage("Only Scrum Masters can delete epics.");
+            return;
         }
         Epic epic = projectController.getCurrentEpic();
 
         if (epic == null) {
-            System.out.println("No epic selected.");
+            setAlertMessage("No epic selected.");
+            return;
         }
 
-        assert epic != null;
         epic.delete();
     }
 
@@ -184,11 +179,11 @@ public class EpicScreen implements Screen {
         try {
             roleIndex = Integer.parseInt(scanner.nextLine()) - 1;
             if (roleIndex < 0 || roleIndex >= chatrooms.size()) {
-                System.out.println("Invalid chatroom selection.");
+                setAlertMessage("Invalid chatroom selection.");
                 return;
             }
         } catch (NumberFormatException e) {
-            System.out.println("Please enter a valid number.");
+            setAlertMessage("Please enter a valid number.");
             return;
         }
 

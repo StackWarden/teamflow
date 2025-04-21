@@ -4,35 +4,25 @@ import org.teamflow.ScreenManager;
 import org.teamflow.controllers.ProjectController;
 import org.teamflow.enums.ScreenType;
 import org.teamflow.abstracts.Screen;
-import org.teamflow.controllers.UserController;
 import org.teamflow.models.Project;
 import org.teamflow.models.ProjectCreationResult;
 import org.teamflow.services.UserProjectRoleService;
 import java.util.ArrayList;
-import java.util.Scanner;
 
 import static org.teamflow.ScreenManager.clearScreen;
 
-public class DashboardScreen implements Screen {
+public class DashboardScreen extends Screen {
 
-    private final Scanner scanner;
-    private final ProjectController projectController;
-    private final UserController userController;
-    private final ScreenManager screenManager;
-
-    public DashboardScreen(Scanner scanner, ProjectController projectController, UserController userController, ScreenManager screenManager) {
-        this.scanner = scanner;
-        this.projectController = projectController;
-        this.userController = userController;
-        this.screenManager = screenManager;
+    public DashboardScreen(ScreenManager screenManager) {
+        super(screenManager);
     }
 
     @Override
     public void show() {
         while (true) {
             clearScreen();
-
-            System.out.println("===== Dashboard =====");
+            printBreadcrumb("Dashboard");
+            System.out.println();
             System.out.println("1. Create a new project");
             System.out.println("2. Join a project");
             System.out.println("3. View joined projects");
@@ -60,7 +50,7 @@ public class DashboardScreen implements Screen {
                     System.out.println("Goodbye!");
                     System.exit(0);
                 }
-                default -> System.out.println();
+                default -> setAlertMessage("Invalid choice.");
             }
         }
     }
@@ -75,14 +65,14 @@ public class DashboardScreen implements Screen {
         Project project = result.getProject();
 
         if (result.getStatus() == 1) {
-            System.out.println("Project created!");
+            setAlertMessage("Project created successfully.");
             UserProjectRoleService.assignRoleToUser(userController.getUserId(), project.getId(), "Scrum Master");
 
             screenManager.switchTo(ScreenType.PROJECT);
         } else if (result.getStatus() == 2) {
-            System.out.println("Project already exists.");
+            setAlertMessage("Project already exists.");
         } else {
-            System.out.println("Error creating project.");
+            setAlertMessage("Error creating project.");
         }
     }
 
@@ -97,7 +87,7 @@ public class DashboardScreen implements Screen {
         if (exists) {
             UserProjectRoleService.assignRoleToUser(userController.getUserId(), choice, "Developer");
         } else {
-            System.out.println("Project does not exist.");
+            setAlertMessage("Project not found.");
         }
     }
 

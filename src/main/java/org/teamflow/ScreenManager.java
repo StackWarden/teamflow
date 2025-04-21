@@ -26,14 +26,14 @@ public class ScreenManager {
         // Registreer alle Schermen die je aanmaakt (en wilt gebruiken) hieronder. Zie basetemplate voor meer info
         // Je moet ook bij ScreenType de titel van je scherm toevoegen dus als je UserStory scherm maak voeg die dan toe als USERSTORY
         // en dan hieronder register(ScreenType.USERSTORY, new UserStoryScreen(alle meuk));
-        register(ScreenType.LOGIN, new LoginScreen(scanner, userController, this));
-        register(ScreenType.DASHBOARD, new DashboardScreen(scanner, projectController, userController, this));
-        register(ScreenType.PROJECT, new ProjectScreen(scanner, projectController, userController, this));
-        register(ScreenType.PROJECT_MEMBERS, new ProjectMembersScreen(scanner, projectController, userController, this));
-        register(ScreenType.EPIC, new EpicScreen(scanner, projectController, userController, this));
-        register(ScreenType.USER_STORY, new UserStoryScreen(scanner, projectController, userController, this));
-        register(ScreenType.TASK, new TaskScreen(scanner, projectController, userController, this));
-        register(ScreenType.CHATROOM, new ChatroomScreen(scanner, chatController, userController, this));
+        register(ScreenType.LOGIN, new LoginScreen(this));
+        register(ScreenType.DASHBOARD, new DashboardScreen(this));
+        register(ScreenType.PROJECT, new ProjectScreen(this));
+        register(ScreenType.PROJECT_MEMBERS, new ProjectMembersScreen(this));
+        register(ScreenType.EPIC, new EpicScreen(this));
+        register(ScreenType.USER_STORY, new UserStoryScreen(this));
+        register(ScreenType.TASK, new TaskScreen(this));
+        register(ScreenType.CHATROOM, new ChatroomScreen(this));
     }
 
     private void register(ScreenType type, Screen screen) {

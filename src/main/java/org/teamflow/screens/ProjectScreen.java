@@ -13,18 +13,10 @@ import java.util.Scanner;
 
 import static org.teamflow.ScreenManager.clearScreen;
 
-public class ProjectScreen implements Screen {
+public class ProjectScreen extends Screen {
 
-    protected final Scanner scanner;
-    protected final ProjectController projectController;
-    protected final UserController userController;
-    protected final ScreenManager screenManager;
-
-    public ProjectScreen(Scanner scanner, ProjectController projectController, UserController userController, ScreenManager screenManager) {
-        this.scanner = scanner;
-        this.projectController = projectController;
-        this.userController = userController;
-        this.screenManager = screenManager;
+    public ProjectScreen(ScreenManager screenManager) {
+        super(screenManager);
     }
 
     @Override
@@ -33,6 +25,7 @@ public class ProjectScreen implements Screen {
 
         while (running) {
             clearScreen();
+            printBreadcrumb("Dashboard", "Project", screenManager.getProjectController().getCurrentProjectName());
 
             printMenu();
             String input = scanner.nextLine().trim();
@@ -45,13 +38,23 @@ public class ProjectScreen implements Screen {
                     if (UserProjectRoleService.isScrumMaster(userController.getUserId(), projectController.getCurrentProjectId())) {
                         goToMemberScreen();
                     } else {
-                        System.out.println("Only Scrum Masters can manage members.");
+                        setAlertMessage("Only Scrum master can manage project members.");
                     }
                 }
-                case "5" -> editProjectUI();
+                case "5" -> {
+                    if (UserProjectRoleService.isScrumMaster(userController.getUserId(), projectController.getCurrentProjectId())) {
+                        editProjectUI();
+                    } else {
+                        setAlertMessage("Only Scrum master can edit projects");
+                    }
+                }
                 case "6" -> {
-                    if (deleteProject()) {
+                    if (UserProjectRoleService.isScrumMaster(userController.getUserId(), projectController.getCurrentProjectId())) {
+                        if (deleteProject()) {
                         running = false;
+                        }
+                    } else {
+                        setAlertMessage("Only Scrum master can delete projects");
                     }
                 }
                 case "0" -> {
@@ -62,8 +65,7 @@ public class ProjectScreen implements Screen {
 
                 }
                 default -> {
-                    System.out.println();
-                    System.out.println("Invalid input. Please try again.");
+                    setAlertMessage("Invalid input.");
                 }
             }
         }
@@ -71,8 +73,7 @@ public class ProjectScreen implements Screen {
 
     protected void printMenu() {
         boolean isScrumMaster = UserProjectRoleService.isScrumMaster(userController.getUserId(), projectController.getCurrentProjectId());
-
-        System.out.println("\n===== " + projectController.getProjectNameAndUserRole(userController.getLoggedUser()) + " =====");
+        System.out.println();
         System.out.println("1. View Epics");
         System.out.println("2. View Sprints");
         System.out.println("3. Open Chatrooms");
@@ -120,11 +121,11 @@ public class ProjectScreen implements Screen {
 
         if (choice.equals(projectController.getCurrentProjectName())) {
             projectController.deleteProject();
-            System.out.println("Project has been successfully deleted.");
+            setAlertMessage("Project deleted.");
             return true;
         }
 
-        System.out.println("Project name did not match. Deletion cancelled.");
+        setAlertMessage("Project name did not match. Deletion cancelled.");
         return false;
     }
 
@@ -137,14 +138,14 @@ public class ProjectScreen implements Screen {
         try {
             projectId = Integer.parseInt(scanner.nextLine());
         } catch (NumberFormatException e) {
-            System.out.println("Invalid project ID.");
+            setAlertMessage("Project ID must be an integer.");
             return;
         }
 
         Project projectToEdit = projectController.getProjectById(projectId);
 
         if (projectToEdit == null) {
-            System.out.println("Project not found or you're not the Scrum Master of this project.");
+            setAlertMessage("Project does not exist.");
             return;
         }
 
@@ -161,9 +162,9 @@ public class ProjectScreen implements Screen {
 
         boolean success = projectController.editProject(projectId, newName, newDescription);
         if (success) {
-            System.out.println("Project updated successfully!");
+            setAlertMessage("Project updated successfully!");
         } else {
-            System.out.println("Failed to update the project.");
+            setAlertMessage("Failed to update the project.");
         }
     }
     public void displayScrumMasterProjects() {

@@ -12,18 +12,10 @@ import java.util.*;
 
 import static org.teamflow.ScreenManager.clearScreen;
 
-public class ChatroomScreen implements Screen {
+public class ChatroomScreen extends Screen {
 
-    private final Scanner scanner;
-    private final ChatController chatController;
-    private final UserController userController;
-    private final ScreenManager screenManager;
-
-    public ChatroomScreen(Scanner scanner, ChatController chatController, UserController userController, ScreenManager screenManager) {
-        this.scanner = scanner;
-        this.chatController = chatController;
-        this.userController = userController;
-        this.screenManager = screenManager;
+    public ChatroomScreen(ScreenManager screenManager) {
+        super(screenManager);
     }
 
     @Override
@@ -41,7 +33,8 @@ public class ChatroomScreen implements Screen {
         boolean running = true;
 
         while (running) {
-            System.out.println("\n===== Chatrooms =====");
+            printBreadcrumb("Dashboard", "Project", "Chatroom");
+
             System.out.println("1. View accessible chatrooms");
             System.out.println("2. Create new chatroom");
             System.out.println("0. Back");
@@ -196,8 +189,8 @@ public class ChatroomScreen implements Screen {
 
     private void renderChatroom(Chatroom chatroom) {
         clearScreen();
-        System.out.println("\n===== Chatroom: " + chatroom.getName() + " =====");
-
+        printBreadcrumb("Project", "Chatroom", chatroom.getName());
+        System.out.println();
         List<Message> messages = chatController.getMessagesForChatroom(chatroom.getId());
         for (Message msg : messages) {
             String username = msg.getUserTitle() != null ? msg.getUserTitle() : "Deleted User";

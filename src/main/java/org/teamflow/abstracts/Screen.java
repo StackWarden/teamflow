@@ -14,6 +14,8 @@ public abstract class Screen {
     protected ChatController chatController;
     protected Scanner scanner;
 
+    public String alertMessage = null;
+
     public Screen(ScreenManager screenManager) {
         this.screenManager = screenManager;
         this.projectController = screenManager.getProjectController();
@@ -32,6 +34,18 @@ public abstract class Screen {
             if (i != parts.length - 1) System.out.print(" > ");
         }
         System.out.println();
+        printAlertMessage();
         System.out.println("────────────────────────────────────────────");
+    }
+
+    public void setAlertMessage(String errorMessage) {
+        this.alertMessage = errorMessage;
+    }
+
+    public void printAlertMessage() {
+        if (alertMessage != null) {
+            System.out.println("Alert: " + alertMessage);
+            alertMessage = null;
+        }
     }
 }

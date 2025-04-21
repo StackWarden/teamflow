@@ -6,7 +6,7 @@ import java.util.Scanner;
 
 // Even een beetje uitleg over de screen logica.
 // Deze template kanje kopieren en herbruiken het heeft de logica al van het ontvangen van een nummer je moet alleen zelf de handlers maken
-public class BaseScreenTemplate implements Screen {
+public class BaseScreenTemplate extends Screen {
 
     protected final Scanner scanner;
     protected final ScreenManager screenManager;
@@ -14,6 +14,7 @@ public class BaseScreenTemplate implements Screen {
 
     // De constructor moet alle controllers hebben die je nodig hebt.
     public BaseScreenTemplate(Scanner scanner, ScreenManager screenManager) {
+        super(screenManager);
         this.scanner = scanner;
         this.screenManager = screenManager;
         // Vergeet de controller hier niet te attachen zoals hierboven.
