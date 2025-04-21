@@ -5,12 +5,10 @@ import org.teamflow.controllers.ChatController;
 import org.teamflow.controllers.ProjectController;
 import org.teamflow.controllers.UserController;
 import org.teamflow.enums.ChatroomLinkType;
-import org.teamflow.interfaces.Screen;
+import org.teamflow.abstracts.Screen;
 import org.teamflow.models.Chatroom;
-import org.teamflow.models.Epic;
 import org.teamflow.models.UserStory;
 import org.teamflow.enums.ScreenType;
-import org.teamflow.services.UserProjectRoleService;
 
 import java.util.ArrayList;
 import java.util.List;

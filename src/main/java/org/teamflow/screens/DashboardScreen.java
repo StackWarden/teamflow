@@ -3,13 +3,12 @@ package org.teamflow.screens;
 import org.teamflow.ScreenManager;
 import org.teamflow.controllers.ProjectController;
 import org.teamflow.enums.ScreenType;
-import org.teamflow.interfaces.Screen;
+import org.teamflow.abstracts.Screen;
 import org.teamflow.controllers.UserController;
 import org.teamflow.models.Project;
 import org.teamflow.models.ProjectCreationResult;
 import org.teamflow.services.UserProjectRoleService;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 
 import static org.teamflow.ScreenManager.clearScreen;

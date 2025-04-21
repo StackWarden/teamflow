@@ -3,7 +3,7 @@ package org.teamflow.screens;
 import org.teamflow.ScreenManager;
 import org.teamflow.controllers.UserController;
 import org.teamflow.enums.ScreenType;
-import org.teamflow.interfaces.Screen;
+import org.teamflow.abstracts.Screen;
 import java.util.Scanner;
 
 import static org.teamflow.ScreenManager.clearScreen;

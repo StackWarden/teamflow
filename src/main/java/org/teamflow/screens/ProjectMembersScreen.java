@@ -3,7 +3,7 @@ package org.teamflow.screens;
 import org.teamflow.ScreenManager;
 import org.teamflow.controllers.ProjectController;
 import org.teamflow.controllers.UserController;
-import org.teamflow.interfaces.Screen;
+import org.teamflow.abstracts.Screen;
 import org.teamflow.models.Role;
 import org.teamflow.models.User;
 import org.teamflow.services.UserProjectRoleService;

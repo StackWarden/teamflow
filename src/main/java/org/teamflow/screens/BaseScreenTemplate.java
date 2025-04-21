@@ -1,7 +1,7 @@
 package org.teamflow.screens;
 
 import org.teamflow.ScreenManager;
-import org.teamflow.interfaces.Screen;
+import org.teamflow.abstracts.Screen;
 import java.util.Scanner;
 
 // Even een beetje uitleg over de screen logica.
