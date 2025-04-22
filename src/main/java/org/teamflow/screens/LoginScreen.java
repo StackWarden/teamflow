@@ -4,6 +4,9 @@ import org.teamflow.ScreenManager;
 import org.teamflow.enums.ScreenType;
 import org.teamflow.abstracts.Screen;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.teamflow.ScreenManager.clearScreen;
 
 public class LoginScreen extends Screen {
@@ -23,39 +26,37 @@ public class LoginScreen extends Screen {
                 return;
             }
 
-            System.out.println("1. Login");
-            System.out.println("2. Register");
-            System.out.println("3. Exit");
+            List<MenuOption> options = new ArrayList<>();
+            options.add(new MenuOption("Login", this::handleLogin));
+            options.add(new MenuOption("Register", this::handleRegister));
+            options.add(new MenuOption("Exit", () -> {
+                System.out.println("Exiting application...");
+                System.exit(0);
+            }));
 
-            String input = scanner.nextLine();
+            displayMenu(options, null);
+        }
+    }
 
-            switch (input) {
-                case "1" -> {
-                    System.out.print("Username: ");
-                    String name = scanner.nextLine();
-                    int status = userController.loginUser(name);
-                    if (status == 1) {
-                        setAlertMessage("Welcome back, " + name + "!");
-                    } else {
-                        setAlertMessage("User not found.");
-                    }
-                }
-                case "2" -> {
-                    System.out.print("Username: ");
-                    String name = scanner.nextLine();
-                    int status = userController.registerUser(name);
-                    if (status == 1) {
-                        setAlertMessage("User successfully registered.");
-                    } else {
-                        setAlertMessage("Username already exists.");
-                    }
-                }
-                case "3" -> {
-                    System.out.println("Exiting application...");
-                    System.exit(0);
-                }
-                default -> setAlertMessage("Invalid input.");
-            }
+    private void handleLogin() {
+        System.out.print("Username: ");
+        String name = scanner.nextLine();
+        int status = userController.loginUser(name);
+        if (status == 1) {
+            setAlertMessage("Welcome back, " + name + "!");
+        } else {
+            setAlertMessage("User not found.");
+        }
+    }
+
+    private void handleRegister() {
+        System.out.print("Username: ");
+        String name = scanner.nextLine();
+        int status = userController.registerUser(name);
+        if (status == 1) {
+            setAlertMessage("User successfully registered.");
+        } else {
+            setAlertMessage("Username already exists.");
         }
     }
 }

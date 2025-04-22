@@ -2,8 +2,6 @@ package org.teamflow.screens;
 
 import org.teamflow.ScreenManager;
 import org.teamflow.controllers.ChatController;
-import org.teamflow.controllers.ProjectController;
-import org.teamflow.controllers.UserController;
 import org.teamflow.enums.ChatroomLinkType;
 import org.teamflow.enums.ScreenType;
 import org.teamflow.abstracts.Screen;
@@ -13,7 +11,7 @@ import org.teamflow.services.UserProjectRoleService;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class TaskScreen extends Screen {
 
@@ -23,34 +21,20 @@ public class TaskScreen extends Screen {
 
     @Override
     public void show() {
-        boolean running = true;
+        AtomicBoolean running = new AtomicBoolean(true);
+        List<MenuOption> options = new ArrayList<>();
+        options.add(new MenuOption("Create task", this::createTask));
+        options.add(new MenuOption("View tasks", this::listTasks));
+        options.add(new MenuOption("Select task", this::selectTask));
 
-        while (running) {
+        while (running.get()) {
             printBreadcrumb("Dashboard", "Project", "Epic", "UserStory", "Task");
-            printMenu();
-            String input = scanner.nextLine();
-
-            switch (input) {
-                case "1" -> createTask();
-                case "2" -> listTasks();
-                case "3" -> selectTask();
-                case "0" -> {
-                    System.out.println("Returning to story...");
-                    running = false;
-                }
-                default -> setAlertMessage("Invalid input.");
-            }
+            System.out.println("Tasks for Story: " + projectController.getCurrentUserStory().getDescription());
+            displayMenu(options, () -> {
+                System.out.println("Returning to story...");
+                running.set(false);
+            });
         }
-    }
-
-    private void printMenu() {
-        System.out.println("Tasks for Story: " +
-                projectController.getCurrentUserStory().getDescription());
-        System.out.println();
-        System.out.println("1. Create task");
-        System.out.println("2. View tasks");
-        System.out.println("3. Select task");
-        System.out.println("0. Back");
     }
 
     private void createTask() {
@@ -97,60 +81,25 @@ public class TaskScreen extends Screen {
     }
 
     private void showTaskDetailMenu() {
-        boolean running = true;
+        printBreadcrumb("Dashboard", "Project", "Epic", "UserStory", "Task");
 
-        while (running) {
-            printBreadcrumb("Dashboard", "Project", "Epic", "UserStory", "Task");
-            printTaskDetailMenu();
-            String input = scanner.nextLine();
-
-            switch (input) {
-                case "1" -> {
-                    if (userController.isScrumMaster(projectController.getCurrentProjectId())) {
-                        editTask();
-                    } else {
-                        setAlertMessage("Only a Scrum Master can edit an Epic.");
-                    }
-                }
-                case "2" -> assignUser();
-                case "3" -> removeUserFromTask();
-                case "4" -> listChatrooms();
-                case "5" -> createChatroom();
-                case "6" -> {
-                    if (userController.isScrumMaster(projectController.getCurrentProjectId())) {
-                        deleteTask();
-                    } else {
-                        setAlertMessage("Only a Scrum Master can edit a Task.");
-                    }
-                }
-                case "0" -> running = false;
-                default -> setAlertMessage("Invalid input.");
-            }
-        }
-    }
-
-    private void printTaskDetailMenu() {
         Task task = projectController.getCurrentTask();
-        String status = task.getStatus() != null ? task.getStatus() : "Unknown status";
+        String status = (task != null && task.getStatus() != null) ? task.getStatus() : "Unknown status";
         String title = (task != null) ? task.getTitle() : "[No task selected]";
-        System.out.println(title + "( " + status + " )");
+        System.out.println(title + " (" + status + ")");
         System.out.println();
-        System.out.println("1. Edit task");
-        System.out.println("2. Assign user");
-        System.out.println("3. Remove user from task");
-        System.out.println("4. View chatrooms");
-        System.out.println("5. Create chatroom");
 
-        boolean isScrumMaster = UserProjectRoleService.isScrumMaster(
-                userController.getUserId(),
-                projectController.getCurrentProjectId()
-        );
+        boolean isScrumMaster = userController.isScrumMaster(projectController.getCurrentProjectId());
 
-        if (isScrumMaster) {
-            System.out.println("6. Delete task");
-        }
+        List<MenuOption> options = new ArrayList<>();
+        options.add(new MenuOption("Edit task", this::editTask, isScrumMaster));
+        options.add(new MenuOption("Assign user", this::assignUser));
+        options.add(new MenuOption("Remove user from task", this::removeUserFromTask, isScrumMaster));
+        options.add(new MenuOption("View chatrooms", this::listChatrooms));
+        options.add(new MenuOption("Create chatroom", this::createChatroom));
+        options.add(new MenuOption("Delete task", this::deleteTask, isScrumMaster));
 
-        System.out.println("0. Back");
+        displayMenu(options, () -> {});
     }
 
     private void editTask() {

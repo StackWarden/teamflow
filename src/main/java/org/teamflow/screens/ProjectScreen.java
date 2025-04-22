@@ -1,15 +1,14 @@
 package org.teamflow.screens;
 
 import org.teamflow.ScreenManager;
-import org.teamflow.controllers.ProjectController;
-import org.teamflow.controllers.UserController;
 import org.teamflow.enums.ScreenType;
 import org.teamflow.abstracts.Screen;
 import org.teamflow.models.Project;
 import org.teamflow.services.UserProjectRoleService;
 
 import java.util.ArrayList;
-import java.util.Scanner;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.teamflow.ScreenManager.clearScreen;
 
@@ -21,72 +20,27 @@ public class ProjectScreen extends Screen {
 
     @Override
     public void show() {
-        boolean running = true;
+        boolean isScrumMaster = userController.isScrumMaster(projectController.getCurrentProjectId());
 
-        while (running) {
-            clearScreen();
-            printBreadcrumb("Dashboard", "Project", screenManager.getProjectController().getCurrentProjectName());
+        List<MenuOption> menuList = new ArrayList<>();
+        menuList.add(new MenuOption("View Epics", this::goToEpicScreen));
+        menuList.add(new MenuOption("View Sprints", this::goToSprintScreen));
+        menuList.add(new MenuOption("Open Chatrooms", this::goToChatroomScreen));
+        menuList.add(new MenuOption("Manage Project Members", this::goToMemberScreen, isScrumMaster));
+        menuList.add(new MenuOption("Edit Project Name", this::editProjectUI, isScrumMaster));
+        menuList.add(new MenuOption("Delete Project", this::deleteProject, isScrumMaster));
 
-            printMenu();
-            String input = scanner.nextLine().trim();
-
-            switch (input) {
-                case "1" -> goToEpicScreen();
-                case "2" -> goToSprintScreen();
-                case "3" -> goToChatroomScreen();
-                case "4" -> {
-                    if (UserProjectRoleService.isScrumMaster(userController.getUserId(), projectController.getCurrentProjectId())) {
-                        goToMemberScreen();
-                    } else {
-                        setAlertMessage("Only Scrum master can manage project members.");
-                    }
-                }
-                case "5" -> {
-                    if (UserProjectRoleService.isScrumMaster(userController.getUserId(), projectController.getCurrentProjectId())) {
-                        editProjectUI();
-                    } else {
-                        setAlertMessage("Only Scrum master can edit projects");
-                    }
-                }
-                case "6" -> {
-                    if (UserProjectRoleService.isScrumMaster(userController.getUserId(), projectController.getCurrentProjectId())) {
-                        if (deleteProject()) {
-                        running = false;
-                        }
-                    } else {
-                        setAlertMessage("Only Scrum master can delete projects");
-                    }
-                }
-                case "0" -> {
-                    System.out.println("Returning to dashboard...");
-                    running = false;
-                }
-                case "" -> {
-
-                }
-                default -> {
-                    setAlertMessage("Invalid input.");
-                }
-            }
-        }
-    }
-
-    protected void printMenu() {
-        boolean isScrumMaster = UserProjectRoleService.isScrumMaster(userController.getUserId(), projectController.getCurrentProjectId());
-        System.out.println();
-        System.out.println("1. View Epics");
-        System.out.println("2. View Sprints");
-        System.out.println("3. Open Chatrooms");
-        if (isScrumMaster) {
-            System.out.println("4. Manage Project Members");
-            System.out.println("5. Edit Project Name");
-            System.out.println("6. Delete Project");
-        }
-        System.out.println("0. Back to Dashboard");
+        clearScreen();
+        printBreadcrumb("Dashboard", "Project", screenManager.getProjectController().getCurrentProjectName());
+        displayMenu(menuList, () -> {
+            System.out.println("Returning to dashboard...");
+            projectController.resetCurrentProject();
+            screenManager.switchTo(ScreenType.DASHBOARD);
+        });
     }
 
     protected void goToEpicScreen() {
-         screenManager.switchTo(ScreenType.EPIC);
+        screenManager.switchTo(ScreenType.EPIC);
     }
 
     protected void goToSprintScreen() {
@@ -95,18 +49,19 @@ public class ProjectScreen extends Screen {
     }
 
     protected void goToChatroomScreen() {
-         screenManager.switchTo(ScreenType.CHATROOM);
+        screenManager.switchTo(ScreenType.CHATROOM);
     }
 
     protected void goToMemberScreen() {
-         screenManager.switchTo(ScreenType.PROJECT_MEMBERS);
+        screenManager.switchTo(ScreenType.PROJECT_MEMBERS);
     }
 
-    protected boolean deleteProject() {
+    protected void deleteProject() {
         boolean isScrumMaster = UserProjectRoleService.isScrumMaster(userController.getUserId(), projectController.getCurrentProjectId());
 
         if (!isScrumMaster) {
-            return false;
+            setAlertMessage("You do not have permission to delete this project");
+            return;
         }
 
         String projectInfo = projectController.getProjectNameAndUserRole(userController.getLoggedUser());
@@ -122,11 +77,10 @@ public class ProjectScreen extends Screen {
         if (choice.equals(projectController.getCurrentProjectName())) {
             projectController.deleteProject();
             setAlertMessage("Project deleted.");
-            return true;
+            return;
         }
 
         setAlertMessage("Project name did not match. Deletion cancelled.");
-        return false;
     }
 
     public void editProjectUI() {
@@ -167,6 +121,7 @@ public class ProjectScreen extends Screen {
             setAlertMessage("Failed to update the project.");
         }
     }
+
     public void displayScrumMasterProjects() {
         int uid = userController.getUserId();
         ArrayList<Project> scrumMasterProjects = projectController.listProjectsWhereScrummaster(uid);

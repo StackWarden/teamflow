@@ -1,13 +1,15 @@
 package org.teamflow.screens;
 
 import org.teamflow.ScreenManager;
-import org.teamflow.controllers.ProjectController;
 import org.teamflow.enums.ScreenType;
 import org.teamflow.abstracts.Screen;
 import org.teamflow.models.Project;
 import org.teamflow.models.ProjectCreationResult;
 import org.teamflow.services.UserProjectRoleService;
+
 import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.teamflow.ScreenManager.clearScreen;
 
@@ -19,40 +21,25 @@ public class DashboardScreen extends Screen {
 
     @Override
     public void show() {
-        while (true) {
-            clearScreen();
-            printBreadcrumb("Dashboard");
-            System.out.println();
-            System.out.println("1. Create a new project");
-            System.out.println("2. Join a project");
-            System.out.println("3. View joined projects");
-            System.out.println("4. Logout");
-            System.out.println("5. Exit");
-            System.out.println("0. Delete account");
-
-            String choice = scanner.nextLine();
-
-            switch (choice) {
-                case "0" -> {
-                    userController.deleteUser();
-                    screenManager.switchTo(ScreenType.LOGIN);
-                    return;
-                }
-                case "1" -> createProject();
-                case "2" -> joinProject();
-                case "3" -> openProject();
-                case "4" -> {
+        clearScreen();
+        printBreadcrumb("Dashboard");
+        displayMenu(List.of(
+                new MenuOption("Create a new project", this::createProject),
+                new MenuOption("Join a project", this::joinProject),
+                new MenuOption("View joined projects", this::openProject),
+                new MenuOption("Logout", () -> {
                     userController.logout();
                     screenManager.switchTo(ScreenType.LOGIN);
-                    return;
-                }
-                case "5" -> {
+                }),
+                new MenuOption("Exit", () -> {
                     System.out.println("Goodbye!");
                     System.exit(0);
-                }
-                default -> setAlertMessage("Invalid choice.");
-            }
-        }
+                }),
+                new MenuOption("Delete account", () -> {
+                    userController.deleteUser();
+                    screenManager.switchTo(ScreenType.LOGIN);
+                })
+        ), null);
     }
 
     private void createProject() {
@@ -81,6 +68,7 @@ public class DashboardScreen extends Screen {
         ArrayList<Project> projects = displayAllProjects();
 
         int choice = scanner.nextInt();
+        scanner.nextLine();
 
         boolean exists = projects.stream().anyMatch(p -> p.getId() == choice);
 
@@ -88,8 +76,11 @@ public class DashboardScreen extends Screen {
             UserProjectRoleService.assignRoleToUser(userController.getUserId(), choice, "Developer");
         } else {
             setAlertMessage("Project not found.");
+            screenManager.switchTo(ScreenType.DASHBOARD);
+            return;
         }
     }
+
 
     public ArrayList<Project> displayAllProjects() {
         ArrayList<Project> allProjects = projectController.listProjects();
@@ -101,15 +92,25 @@ public class DashboardScreen extends Screen {
     }
 
     public void openProject() {
-        for (Project project : userController.getProjects()) {
+        List<Project> projects = userController.getProjects();
+
+        if (projects.isEmpty()) {
+            setAlertMessage("No projects found.");
+            screenManager.switchTo(ScreenType.DASHBOARD);
+        }
+
+        for (Project project : projects) {
             System.out.println(project.getId() + ": " + project.getName() + " - " + project.getDescription());
         }
 
         System.out.println("Which project to open?");
 
         int projectId = scanner.nextInt();
+
         if (projectController.setCurrentProject(projectId)) {
             screenManager.switchTo(ScreenType.PROJECT);
+        } else {
+            screenManager.switchTo(ScreenType.DASHBOARD);
         }
     }
 }

@@ -44,6 +44,10 @@ public class ProjectController {
         return false;
     }
 
+    public void resetCurrentProject() {
+        currentProject = null;
+    }
+
     public Project getCurrentProject() {
         return currentProject;
     }

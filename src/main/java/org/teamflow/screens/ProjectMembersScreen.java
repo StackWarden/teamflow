@@ -1,15 +1,14 @@
 package org.teamflow.screens;
 
 import org.teamflow.ScreenManager;
-import org.teamflow.controllers.ProjectController;
-import org.teamflow.controllers.UserController;
 import org.teamflow.abstracts.Screen;
 import org.teamflow.models.Role;
 import org.teamflow.models.User;
 import org.teamflow.services.UserProjectRoleService;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ProjectMembersScreen extends Screen {
 
@@ -19,34 +18,19 @@ public class ProjectMembersScreen extends Screen {
 
     @Override
     public void show() {
-        boolean running = true;
+        AtomicBoolean running = new AtomicBoolean(true);
+        printBreadcrumb("Dashboard", "Project", "Project Members");
 
-        while (running) {
-            printBreadcrumb("Dashboard", "Project", "Project Members");
-            printMenu();
+        List<MenuOption> options = new ArrayList<>();
+        options.add(new MenuOption("View all members", this::listMembers));
+        options.add(new MenuOption("Add member to project", this::addMember));
+        options.add(new MenuOption("Change member role", this::changeUserRole));
+        options.add(new MenuOption("Remove member", this::removeMember));
 
-            String input = scanner.nextLine();
-            switch (input) {
-                case "1" -> listMembers();
-                case "2" -> addMember();
-                case "3" -> changeUserRole();
-                case "4" -> removeMember();
-                case "0" -> {
-                    System.out.println("Returning to project screen...");
-                    running = false;
-                }
-                default -> System.out.println();
-            }
-        }
-    }
-
-    private void printMenu() {
-        System.out.println();
-        System.out.println("1. View all members");
-        System.out.println("2. Add member to project");
-        System.out.println("3. Change member role");
-        System.out.println("4. Remove member");
-        System.out.println("0. Back");
+        displayMenu(options, () -> {
+            System.out.println("Returning to project screen...");
+            running.set(false);
+        });
     }
 
     private void listMembers() {

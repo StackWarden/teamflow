@@ -2,8 +2,6 @@ package org.teamflow.screens;
 
 import org.teamflow.ScreenManager;
 import org.teamflow.controllers.ChatController;
-import org.teamflow.controllers.ProjectController;
-import org.teamflow.controllers.UserController;
 import org.teamflow.enums.ChatroomLinkType;
 import org.teamflow.abstracts.Screen;
 import org.teamflow.models.Chatroom;
@@ -12,7 +10,7 @@ import org.teamflow.enums.ScreenType;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class UserStoryScreen extends Screen {
 
@@ -22,33 +20,21 @@ public class UserStoryScreen extends Screen {
 
     @Override
     public void show() {
-        boolean running = true;
+        AtomicBoolean running = new AtomicBoolean(true);
 
-        while (running) {
+        while (running.get()) {
             printBreadcrumb("Dashboard", "Project", "Epic", "UserStory");
-            printMenu();
-            String input = scanner.nextLine();
 
-            switch (input) {
-                case "1" -> createUserStory();
-                case "2" -> listUserStories();
-                case "3" -> selectUserStory();
-                case "0" -> {
-                    System.out.println("Returning to epic screen...");
-                    running = false;
-                }
-                default -> setAlertMessage("Invalid input. Try again.");
-            }
+            List<MenuOption> menu = new ArrayList<>();
+            menu.add(new MenuOption("Create user story", this::createUserStory));
+            menu.add(new MenuOption("View user stories", this::listUserStories));
+            menu.add(new MenuOption("Select user story", this::selectUserStory));
+
+            displayMenu(menu, () -> {
+                System.out.println("Returning to epic screen...");
+                running.set(false);
+            });
         }
-    }
-
-    private void printMenu() {
-        System.out.println("User Stories for Epic: " + projectController.getCurrentEpic().getTitle());
-        System.out.println();
-        System.out.println("1. Create user story");
-        System.out.println("2. View user stories");
-        System.out.println("3. Select user story");
-        System.out.println("0. Back");
     }
 
     private void createUserStory() {
@@ -95,57 +81,18 @@ public class UserStoryScreen extends Screen {
     }
 
     private void showUserStoryDetailMenu() {
-        boolean running = true;
+        printBreadcrumb("Dashboard", "Project", "Epic", "UserStory");
 
-        while (running) {
-            printBreadcrumb("Dashboard", "Project", "Epic", "UserStory");
-            printUserStoryDetailMenu();
-            String input = scanner.nextLine();
+        boolean isScrumMaster = userController.isScrumMaster(projectController.getCurrentProjectId());
 
-            switch (input) {
-                case "1" -> screenManager.switchTo(ScreenType.TASK);
-                case "2" -> listChatrooms();
-                case "3" -> createChatroom();
-                case "4" -> {
-                    if (userController.isScrumMaster(projectController.getCurrentProjectId())) {
-                        editUserStory();
-                    } else {
-                        setAlertMessage("Only a Scrum Master can edit an User Story.");
-                    }
-                }
-                case "5" -> {
-                    if (userController.isScrumMaster(projectController.getCurrentProjectId())) {
-                        deleteUserStory();
-                    } else {
-                        setAlertMessage("Only a Scrum Master can edit a User Story.");
-                    }
-                }
-                case "0" -> running = false;
-                default -> setAlertMessage("Invalid input.");
-            }
-        }
-    }
+        List<MenuOption> options = new ArrayList<>();
+        options.add(new MenuOption("Go to task screen", () -> screenManager.switchTo(ScreenType.TASK)));
+        options.add(new MenuOption("View linked chatrooms", this::listChatrooms));
+        options.add(new MenuOption("Create chatroom", this::createChatroom));
+        options.add(new MenuOption("Edit story", this::editUserStory, isScrumMaster));
+        options.add(new MenuOption("Delete story", this::deleteUserStory, isScrumMaster));
 
-    private void printUserStoryDetailMenu() {
-        UserStory story = projectController.getCurrentUserStory();
-        String title = (story != null) ? story.getDescription() : "[No story selected]";
-
-        System.out.println(title);
-        System.out.println();
-        System.out.println("1. Go to task screen");
-        System.out.println("2. View linked chatrooms");
-        System.out.println("3. Create chatroom");
-        System.out.println("4. Edit story");
-
-        boolean isScrumMaster = projectController.getCurrentProjectId() > 0 &&
-                userController.getUserId() > 0 &&
-                org.teamflow.services.UserProjectRoleService.isScrumMaster(userController.getUserId(), projectController.getCurrentProjectId());
-
-        if (isScrumMaster) {
-            System.out.println("5. Delete story");
-        }
-
-        System.out.println("0. Back");
+        displayMenu(options, () -> {});
     }
 
     private void listChatrooms() {

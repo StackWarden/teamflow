@@ -2,8 +2,6 @@ package org.teamflow.screens;
 
 import org.teamflow.ScreenManager;
 import org.teamflow.controllers.ChatController;
-import org.teamflow.controllers.ProjectController;
-import org.teamflow.controllers.UserController;
 import org.teamflow.enums.ChatroomLinkType;
 import org.teamflow.enums.ScreenType;
 import org.teamflow.abstracts.Screen;
@@ -12,7 +10,7 @@ import org.teamflow.models.Epic;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class EpicScreen extends Screen {
 
@@ -22,32 +20,20 @@ public class EpicScreen extends Screen {
 
     @Override
     public void show() {
-        boolean running = true;
+        AtomicBoolean running = new AtomicBoolean(true);
+        List<MenuOption> menuList = new ArrayList<>();
+        menuList.add(new MenuOption("Create new epic", this::createEpic));
+        menuList.add(new MenuOption("View epic", this::listEpics));
+        menuList.add(new MenuOption("Select epic", this::selectEpic));
 
-        while (running) {
-            printBreadcrumb("Project", "Epic");
-            printMenu();
-            String input = scanner.nextLine();
-
-            switch (input) {
-                case "1" -> createEpic();
-                case "2" -> listEpics();
-                case "3" -> selectEpic();
-                case "0" -> {
-                    System.out.println("Returning to project screen...");
-                    running = false;
-                }
-                default -> setAlertMessage("Invalid input. Try again.");
-            }
+        while (running.get()) {
+            printBreadcrumb("Dashboard", "Project", "Epic");
+            System.out.println();
+            displayMenu(menuList, () -> {
+                System.out.println("Returning to project screen...");
+                running.set(false);
+            });
         }
-    }
-
-    private void printMenu() {
-        System.out.println();
-        System.out.println("1. Create new epic");
-        System.out.println("2. View epics");
-        System.out.println("3. Select epic");
-        System.out.println("0. Back");
     }
 
     private void selectEpic() {
@@ -78,46 +64,18 @@ public class EpicScreen extends Screen {
     }
 
     private void showEpicDetailsMenu() {
-        boolean running = true;
-        while (running) {
-            printBreadcrumb("Dashboard", "Project", "Epic");
-            printEpicDetailsMenu();
-            String input = scanner.nextLine();
+        printBreadcrumb("Dashboard", "Project", "Epic", projectController.getCurrentEpic().getTitle());
 
-            switch (input) {
-                case "1" -> screenManager.switchTo(ScreenType.USER_STORY);
-                case "2" -> {
-                    if (userController.isScrumMaster(projectController.getCurrentProjectId())) {
-                    editEpic();
-                    } else {
-                        setAlertMessage("Only a Scrum Master can edit an Epic.");
-                    }
-                }
-                case "3" -> {
-                    if (userController.isScrumMaster(projectController.getCurrentProjectId())) {
-                        deleteEpic();
-                    }
-                    else {
-                        setAlertMessage("Only a Scrum Master can delete an Epic.");
-                    }
-                }
-                case "4" -> listEpicChatrooms();
-                case "5" -> createEpicChatroom();
-                case "0" -> running = false;
-                default -> setAlertMessage("Invalid input.");
-            }
-        }
-    }
+        boolean isScrumMaster = userController.isScrumMaster(projectController.getCurrentProjectId());
+        List<MenuOption> menuList = new ArrayList<>();
 
-    private void printEpicDetailsMenu() {
-        System.out.println(projectController.getCurrentEpic().getTitle());
-        System.out.println();
-        System.out.println("1. View user stories");
-        System.out.println("2. Edit epic");
-        System.out.println("3. Delete epic");
-        System.out.println("4. View linked chatrooms");
-        System.out.println("5. Create chatroom");
-        System.out.println("0. Back");
+        menuList.add(new MenuOption("View user stories", () -> screenManager.switchTo(ScreenType.USER_STORY)));
+        menuList.add(new MenuOption("Edit epic", this::editEpic, isScrumMaster));
+        menuList.add(new MenuOption("Delete epic", this::deleteEpic, isScrumMaster));
+        menuList.add(new MenuOption("View linked chatrooms", this::listEpicChatrooms));
+        menuList.add(new MenuOption("Create chatroom", this::createEpicChatroom));
+
+        displayMenu(menuList, null);
     }
 
     private void createEpic() {
